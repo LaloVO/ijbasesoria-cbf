@@ -1,0 +1,189 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 210 20% 98%;
+    --foreground: 222 47% 11%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+
+    --primary: 221 83% 53%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 222 47% 11%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 214 32% 91%;
+    --muted-foreground: 215 16% 47%;
+
+    --accent: 199 89% 48%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 221 83% 53%;
+
+    --radius: 1rem;
+
+    /* Custom luxury tokens matching IJB Asesoría */
+    --luxury-cream: 210 20% 98%;
+    --luxury-black: 222 47% 11%;
+    --luxury-gold: 221 83% 53%;
+    --luxury-green: 142 71% 45%;
+    --luxury-white: 0 0% 100%;
+
+    /* Gradients */
+    --gradient-hero: linear-gradient(180deg, transparent 0%, hsl(222 47% 11% / 0.4) 100%);
+    --gradient-card: linear-gradient(180deg, transparent 0%, hsl(222 47% 11% / 0.6) 100%);
+
+    /* Shadows */
+    --shadow-elegant: 0 10px 40px -10px hsl(222 47% 11% / 0.1);
+    --shadow-card: 0 4px 20px -4px hsl(222 47% 11% / 0.05);
+
+    --sidebar-background: 210 20% 98%;
+    --sidebar-foreground: 222 47% 11%;
+    --sidebar-primary: 221 83% 53%;
+    --sidebar-primary-foreground: 210 40% 98%;
+    --sidebar-accent: 214 32% 91%;
+    --sidebar-accent-foreground: 222 47% 11%;
+    --sidebar-border: 214 32% 91%;
+    --sidebar-ring: 221 83% 53%;
+  }
+
+  .dark {
+    --background: 222 47% 6%;
+    --foreground: 210 40% 98%;
+
+    --card: 222 47% 10%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222 47% 10%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 221 83% 53%;
+    --primary-foreground: 222 47% 6%;
+
+    --secondary: 222 47% 15%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 222 47% 12%;
+    --muted-foreground: 215 20% 65%;
+
+    --accent: 199 89% 48%;
+    --accent-foreground: 222 47% 6%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 222 47% 15%;
+    --input: 222 47% 15%;
+    --ring: 221 83% 53%;
+
+    --sidebar-background: 222 47% 6%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 221 83% 53%;
+    --sidebar-primary-foreground: 222 47% 6%;
+    --sidebar-accent: 222 47% 15%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 222 47% 15%;
+    --sidebar-ring: 221 83% 53%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-sans;
+  }
+
+  ::selection {
+    @apply bg-primary text-primary-foreground;
+  }
+}
+
+@layer components {
+  .luxury-container {
+    @apply max-w-[90rem] mx-auto px-6 md:px-12;
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+@layer utilities {
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Reveal animations */
+  .reveal-up {
+    @apply opacity-0 translate-y-[60px] transition-all duration-[1200ms];
+    transition-timing-function: cubic-bezier(0.2, 1, 0.3, 1);
+  }
+
+  .reveal-active {
+    @apply opacity-100 translate-y-0;
+  }
+
+  /* Line reveal */
+  .line-reveal {
+    @apply w-0 transition-all duration-[1500ms];
+    transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .line-reveal.active {
+    @apply w-full;
+  }
+
+  /* Mask reveal */
+  .mask-overlay {
+    @apply absolute inset-0 bg-background z-[2] transition-transform duration-[1200ms];
+    transition-timing-function: cubic-bezier(0.77, 0, 0.175, 1);
+    transform-origin: bottom;
+  }
+
+  .mask-reveal .mask-overlay {
+    transform: translateY(-100%);
+  }
+
+  /* Hover effects */
+  .hover-lift {
+    @apply transition-transform duration-500;
+  }
+
+  .hover-lift:hover {
+    @apply -translate-y-1;
+  }
+
+  .image-zoom {
+    @apply transition-transform;
+    transition-duration: 1500ms;
+  }
+
+  .group:hover .image-zoom {
+    @apply scale-105;
+  }
+}
