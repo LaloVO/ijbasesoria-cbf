@@ -145,3 +145,26 @@ export async function fetchBusySlots(): Promise<Array<{ start: string; end: stri
   const json = await res.json();
   return json.busySlots || [];
 }
+
+export interface CBFPost {
+  id: string;
+  title: string;
+  content: string;
+  tags?: string[];
+  post_type: "post" | "blog";
+  created_at: string;
+  property?: CBFProperty | null;
+}
+
+export async function fetchPosts(params?: {
+  post_type?: "post" | "blog";
+  limit?: number;
+}): Promise<{ data: CBFPost[] }> {
+  const query = new URLSearchParams();
+  if (params?.post_type) query.set("post_type", params.post_type);
+  if (params?.limit) query.set("limit", String(params.limit));
+
+  const res = await fetch(`${BASE_URL}/posts?${query}`, { headers: headers() });
+  if (!res.ok) throw new Error("Error al cargar posts");
+  return res.json();
+}
