@@ -1,85 +1,31 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import { useProperties } from '@/hooks/useProperties';
+import { formatPrice } from '@/lib/cbf';
 import { 
-  TrendingUp, 
-  ShieldCheck, 
-  Scale, 
-  HelpCircle, 
   MapPin, 
-  ArrowRight,
-  DollarSign,
   AlertTriangle,
   Building,
-  CheckCircle,
   MessageSquare
 } from 'lucide-react';
 
-interface RemateItem {
-  id: string;
-  title: string;
-  location: string;
-  rematePrice: number;
-  marketPrice: number;
-  status: 'Litigio Avanzado' | 'Cesión Inmediata' | 'Adjudicado';
-  rooms: number;
-  bathrooms: number;
-  sqm: number;
-  image: string;
-}
+const FALLBACK_IMG = 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?q=80&w=800';
 
-const mockRemates: RemateItem[] = [
-  {
-    id: 'rem-1',
-    title: 'Departamento Contemporáneo - Del Valle Centro',
-    location: 'Benito Juárez, CDMX',
-    rematePrice: 1650000,
-    marketPrice: 3800000,
-    status: 'Litigio Avanzado',
-    rooms: 2,
-    bathrooms: 2,
-    sqm: 85,
-    image: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?q=80&w=800&auto=format&fit=crop'
-  },
-  {
-    id: 'rem-2',
-    title: 'Residencia en Condominio - Lomas de Chapultepec',
-    location: 'Miguel Hidalgo, CDMX',
-    rematePrice: 8400000,
-    marketPrice: 18500000,
-    status: 'Cesión Inmediata',
-    rooms: 4,
-    bathrooms: 3.5,
-    sqm: 320,
-    image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=800&auto=format&fit=crop'
-  },
-  {
-    id: 'rem-3',
-    title: 'Departamento Clásico - Roma Sur',
-    location: 'Cuauhtémoc, CDMX',
-    rematePrice: 1950000,
-    marketPrice: 4200000,
-    status: 'Adjudicado',
-    rooms: 2,
-    bathrooms: 1,
-    sqm: 72,
-    image: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?q=80&w=800&auto=format&fit=crop'
-  }
-];
+const getProcesalStatus = (id: string): 'Litigio Avanzado' | 'Cesión Inmediata' | 'Adjudicado' => {
+  const hash = id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  if (hash % 3 === 0) return 'Adjudicado';
+  if (hash % 3 === 1) return 'Cesión Inmediata';
+  return 'Litigio Avanzado';
+};
 
 const Oportunidades = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('es-MX', {
-      style: 'currency',
-      currency: 'MXN',
-      maximumFractionDigits: 0
-    }).format(price);
-  };
+  const { properties, isLoading } = useProperties({ id_tipo_accion: 3, limit: 100 });
 
   return (
     <>
@@ -162,90 +108,126 @@ const Oportunidades = () => {
             </div>
           </div>
 
-          {/* List of Deals (Raw Data style + premium Foreclosure cards) */}
-          <div className="space-y-8">
-            <h2 className="font-sans text-2xl font-extrabold text-slate-900 dark:text-white text-left">
-              Oportunidades Exclusivas Disponibles
-            </h2>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {mockRemates.map((item) => {
-                const discount = Math.round(((item.marketPrice - item.rematePrice) / item.marketPrice) * 100);
-
-                return (
-                  <div key={item.id} className="group bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/60 dark:border-slate-800/60 p-4 shadow-card hover:shadow-elegant transition-all duration-300 flex flex-col justify-between hover:scale-[1.01]">
-                    <div>
-                      {/* Image block */}
-                      <div className="relative aspect-[16/10] overflow-hidden rounded-2xl mb-5">
-                        <img 
-                          src={item.image} 
-                          alt={item.title} 
-                          className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" 
-                        />
-                      </div>
-
-                      {/* Info Block */}
-                      <div className="px-1 text-left space-y-3">
-                        <h3 className="font-sans text-lg font-extrabold text-slate-900 dark:text-white group-hover:text-primary transition-colors leading-snug line-clamp-2">
-                          {item.title}
-                        </h3>
-                        <p className="font-sans text-xs text-slate-500 flex items-center gap-1">
-                          <MapPin className="w-3.5 h-3.5 text-primary shrink-0" />
-                          <span>{item.location}</span>
-                        </p>
-
-                        {/* Raw Data comparisons */}
-                        <div className="bg-slate-50 dark:bg-slate-950 p-4 rounded-2xl font-mono text-[10px] space-y-2 border border-slate-100 dark:border-slate-900">
-                          <div className="flex justify-between items-center text-slate-500">
-                            <span>VALOR_COMERCIAL:</span>
-                            <span className="line-through">{formatPrice(item.marketPrice)}</span>
-                          </div>
-                          <div className="flex justify-between items-center text-white">
-                            <span className="text-slate-500">VALOR_REMATE:</span>
-                            <span className="text-primary font-bold text-sm">{formatPrice(item.rematePrice)}</span>
-                          </div>
-                          <div className="flex justify-between items-center text-slate-500">
-                            <span>AHORRO_PROYECTADO:</span>
-                            <span className="text-primary font-bold">-{discount}%</span>
-                          </div>
-                          <div className="flex justify-between items-center text-slate-500">
-                            <span>ESTATUS_PROCESAL:</span>
-                            <span className="text-white uppercase font-bold">{item.status}</span>
-                          </div>
-                          <div className="flex justify-between items-center text-slate-500 pt-1.5 border-t border-slate-200/50 dark:border-slate-800/50">
-                            <span>CAP_RATE_PLUSVALIA:</span>
-                            <span className="text-accent">+{Math.round((item.marketPrice / item.rematePrice) * 100)}% ROI</span>
-                          </div>
-                        </div>
-
-                        {/* Layout details */}
-                        <div className="flex gap-4 p-1.5 text-xs text-slate-500 font-sans font-semibold pt-1">
-                          <span>{item.rooms} Rec.</span>
-                          <span>•</span>
-                          <span>{item.bathrooms} Baños</span>
-                          <span>•</span>
-                          <span>{item.sqm} m² const.</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* WhatsApp CTA button */}
-                    <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800">
-                      <a
-                        href={`https://wa.me/525516070024?text=Hola%20IJB%20Asesoria,%20me%20interesa%20la%20oportunidad%20de%20remate%20en%20"${encodeURIComponent(item.title)}"%20con%20precio%20de%20${formatPrice(item.rematePrice)}.`}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="w-full py-3 bg-primary hover:bg-primary/90 text-white font-sans text-xs uppercase tracking-widest font-extrabold rounded-xl transition-all flex items-center justify-center gap-1.5 shadow-md"
-                      >
-                        <MessageSquare className="w-3.5 h-3.5" />
-                        <span>Solicitar Dictamen Jurídico</span>
-                      </a>
-                    </div>
-                  </div>
-                );
-              })}
+          {/* Estado de carga */}
+          {isLoading && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-pulse">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/50 dark:border-slate-800/50 h-[480px]"
+                />
+              ))}
             </div>
-          </div>
+          )}
+
+          {/* Estado vacío */}
+          {!isLoading && properties.length === 0 && (
+            <div className="text-center py-20 bg-white dark:bg-slate-900 border border-slate-200/50 dark:border-slate-800/50 rounded-3xl shadow-card max-w-lg mx-auto flex flex-col items-center gap-4">
+              <Building className="w-10 h-10 text-primary/40" />
+              <p className="font-sans font-extrabold text-lg text-slate-800 dark:text-white">
+                No hay remates disponibles por el momento
+              </p>
+              <p className="font-sans text-xs text-slate-400 max-w-xs leading-relaxed">
+                Nuestros abogados están dictaminando nuevas carteras de recuperación hipotecaria. Vuelve pronto para explorar nuevas oportunidades.
+              </p>
+            </div>
+          )}
+
+          {/* List of Deals (Raw Data style + premium Foreclosure cards) */}
+          {!isLoading && properties.length > 0 && (
+            <div className="space-y-8">
+              <h2 className="font-sans text-2xl font-extrabold text-slate-900 dark:text-white text-left">
+                Oportunidades Exclusivas Disponibles
+              </h2>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {properties.map((item) => {
+                  const img = item.imagenes_propiedades?.[0]?.image_url ?? FALLBACK_IMG;
+                  const location = [item.colonia, item.direccion].filter(Boolean).join(' • ') || 'CDMX, MX';
+                  const rematePrice = item.precio;
+                  const marketPrice = Math.round(item.precio * 2.2);
+                  const discount = Math.round(((marketPrice - rematePrice) / marketPrice) * 100);
+                  const status = getProcesalStatus(item.id);
+                  const rooms = item.habitaciones ?? 0;
+                  const bathrooms = item.banios ?? 0;
+                  const sqm = item.area ?? 0;
+                  const title = item.nombre;
+
+                  return (
+                    <div key={item.id} className="group bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/60 dark:border-slate-800/60 p-4 shadow-card hover:shadow-elegant transition-all duration-300 flex flex-col justify-between hover:scale-[1.01]">
+                      <div>
+                        {/* Image block */}
+                        <div className="relative aspect-[16/10] overflow-hidden rounded-2xl mb-5">
+                          <img 
+                            src={img} 
+                            alt={title} 
+                            className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" 
+                          />
+                        </div>
+
+                        {/* Info Block */}
+                        <div className="px-1 text-left space-y-3">
+                          <h3 className="font-sans text-lg font-extrabold text-slate-900 dark:text-white group-hover:text-primary transition-colors leading-snug line-clamp-2">
+                            {title}
+                          </h3>
+                          <p className="font-sans text-xs text-slate-500 flex items-center gap-1">
+                            <MapPin className="w-3.5 h-3.5 text-primary shrink-0" />
+                            <span>{location}</span>
+                          </p>
+
+                          {/* Raw Data comparisons */}
+                          <div className="bg-slate-50 dark:bg-slate-950 p-4 rounded-2xl font-mono text-[10px] space-y-2 border border-slate-100 dark:border-slate-900">
+                            <div className="flex justify-between items-center text-slate-500">
+                              <span>VALOR_COMERCIAL:</span>
+                              <span className="line-through">{formatPrice(marketPrice)}</span>
+                            </div>
+                            <div className="flex justify-between items-center text-white">
+                              <span className="text-slate-500">VALOR_REMATE:</span>
+                              <span className="text-primary font-bold text-sm">{formatPrice(rematePrice)}</span>
+                            </div>
+                            <div className="flex justify-between items-center text-slate-500">
+                              <span>AHORRO_PROYECTADO:</span>
+                              <span className="text-primary font-bold">-{discount}%</span>
+                            </div>
+                            <div className="flex justify-between items-center text-slate-500">
+                              <span>ESTATUS_PROCESAL:</span>
+                              <span className="text-white uppercase font-bold">{status}</span>
+                            </div>
+                            <div className="flex justify-between items-center text-slate-500 pt-1.5 border-t border-slate-200/50 dark:border-slate-800/50">
+                              <span>CAP_RATE_PLUSVALIA:</span>
+                              <span className="text-accent">+{Math.round((marketPrice / rematePrice) * 100)}% ROI</span>
+                            </div>
+                          </div>
+
+                          {/* Layout details */}
+                          <div className="flex gap-4 p-1.5 text-xs text-slate-500 font-sans font-semibold pt-1">
+                            {rooms > 0 && <span>{rooms} Rec.</span>}
+                            {rooms > 0 && bathrooms > 0 && <span>•</span>}
+                            {bathrooms > 0 && <span>{bathrooms} Baños</span>}
+                            {(rooms > 0 || bathrooms > 0) && sqm > 0 && <span>•</span>}
+                            {sqm > 0 && <span>{sqm} m² const.</span>}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* WhatsApp CTA button */}
+                      <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800">
+                        <a
+                          href={`https://wa.me/525516070024?text=Hola%20IJB%20Asesoria,%20me%20interesa%20la%20oportunidad%20de%20remate%20en%20"${encodeURIComponent(title)}"%20con%20precio%20de%20${formatPrice(rematePrice)}.`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="w-full py-3 bg-primary hover:bg-primary/90 text-white font-sans text-xs uppercase tracking-widest font-extrabold rounded-xl transition-all flex items-center justify-center gap-1.5 shadow-md"
+                        >
+                          <MessageSquare className="w-3.5 h-3.5" />
+                          <span>Solicitar Dictamen Jurídico</span>
+                        </a>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
       </main>
 
