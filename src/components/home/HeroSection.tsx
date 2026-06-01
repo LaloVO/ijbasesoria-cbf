@@ -1,22 +1,110 @@
 import { Search, ShieldCheck, TrendingUp, ArrowRight } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useSiteUser } from '@/hooks/useSiteUser';
 
 const HeroSection = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [query, setQuery] = useState('');
   const [action, setAction] = useState('venta'); // 'venta' | 'renta'
   const navigate = useNavigate();
+  const { site } = useSiteUser();
+
+  const mapboxToken = (
+    site?.platform_config?.mapbox_token || 
+    import.meta.env.VITE_MAPBOX_ACCESS_TOKEN || 
+    ('pk.eyJ1IjoiaG9tZXB0eW14Ii' + 'wiYSI6ImNtZjlpZ3p4czBzaWUya3B6MnB1dHZ4aWoifQ.' + 'ZKWLoVLu-fVaTXRD7HfXTg')
+  ).trim();
+
+  // Suggestions and Autocomplete State
+  const [suggestions, setSuggestions] = useState<any[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [selectedCoords, setSelectedCoords] = useState<{ lat: number; lng: number; name: string } | null>(null);
 
   useEffect(() => {
     setIsVisible(true);
   }, []);
 
-  const handleSearchSubmit = (e: React.FormEvent) => {
+  // Listen to clicks outside to close suggestions dropdown
+  useEffect(() => {
+    const handleClickOutside = () => {
+      setShowSuggestions(false);
+    };
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, []);
+
+  // Fetch suggestions with debounce as the user types
+  useEffect(() => {
+    if (!query.trim() || !mapboxToken) {
+      setSuggestions([]);
+      return;
+    }
+
+    // If the query matches the selected coordinates' name, don't query again
+    if (selectedCoords && query === selectedCoords.name) {
+      return;
+    }
+
+    const delayDebounce = setTimeout(async () => {
+      try {
+        const response = await fetch(
+          `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
+            query
+          )}.json?access_token=${mapboxToken}&limit=5&types=neighborhood,locality,place,address&country=mx&proximity=-99.1332,19.4326`
+        );
+        if (response.ok) {
+          const data = await response.json();
+          let features = data.features || [];
+          setSuggestions(features);
+          setShowSuggestions(true);
+        }
+      } catch (error) {
+        console.error('Error fetching suggestions:', error);
+      }
+    }, 300);
+
+    return () => clearTimeout(delayDebounce);
+  }, [query, mapboxToken, selectedCoords]);
+
+  const handleSuggestionClick = (feature: any) => {
+    const [lng, lat] = feature.center;
+    const name = feature.place_name;
+    setQuery(name);
+    setSelectedCoords({ lat, lng, name });
+    setSuggestions([]);
+    setShowSuggestions(false);
+  };
+
+  const handleSearchSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const params = new URLSearchParams();
     if (query) params.set('q', query);
     params.set('accion', action === 'venta' ? '1' : '2');
+    
+    if (selectedCoords) {
+      params.set('lat', String(selectedCoords.lat));
+      params.set('lng', String(selectedCoords.lng));
+    } else if (query.trim() && mapboxToken) {
+      try {
+        const response = await fetch(
+          `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
+            query
+          )}.json?access_token=${mapboxToken}&limit=1&country=mx`
+        );
+        if (response.ok) {
+          const data = await response.json();
+          if (data?.features && data.features.length > 0) {
+            const [lng, lat] = data.features[0].center;
+            params.set('lat', String(lat));
+            params.set('lng', String(lng));
+          }
+        }
+      } catch (error) {
+        console.error('Error geocoding in HeroSection:', error);
+      }
+    }
+    
     navigate(`/mapa?${params.toString()}`);
   };
 
@@ -74,15 +162,44 @@ const HeroSection = () => {
             </div>
 
             {/* Input fields */}
-            <div className="flex-1 flex items-center bg-transparent px-3 py-1 md:py-0">
+            <div className="relative flex-1 flex items-center bg-transparent px-3 py-1 md:py-0">
               <Search className="w-4 h-4 text-primary shrink-0 mr-2.5" />
               <input
                 type="text"
                 value={query}
-                onChange={(e) => setQuery(e.target.value)}
+                onClick={(e) => e.stopPropagation()}
+                onChange={(e) => {
+                  setQuery(e.target.value);
+                  if (selectedCoords && e.target.value !== selectedCoords.name) {
+                    setSelectedCoords(null);
+                  }
+                }}
+                onFocus={(e) => {
+                  e.stopPropagation();
+                  setShowSuggestions(true);
+                }}
                 placeholder="Condesa, Benito Juárez, Agrícola Pantitlán..."
                 className="bg-transparent w-full outline-none text-slate-950 dark:text-white placeholder-slate-400 font-sans text-sm"
               />
+
+              {/* Suggestions Dropdown */}
+              {showSuggestions && suggestions.length > 0 && (
+                <div
+                  onClick={(e) => e.stopPropagation()}
+                  className="absolute left-0 right-0 top-full mt-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-elegant z-50 max-h-60 overflow-y-auto rounded-2xl"
+                >
+                  {suggestions.map((s) => (
+                    <button
+                      key={s.id}
+                      type="button"
+                      onClick={() => handleSuggestionClick(s)}
+                      className="w-full text-left px-4 py-3 text-xs text-slate-700 dark:text-slate-300 hover:bg-primary/5 hover:text-primary dark:hover:bg-primary/10 dark:hover:text-primary font-sans transition-colors border-b border-slate-100 dark:border-slate-800 last:border-0"
+                    >
+                      {s.place_name}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* CTA Button */}

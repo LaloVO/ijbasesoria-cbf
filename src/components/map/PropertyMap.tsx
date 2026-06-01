@@ -21,9 +21,10 @@ export interface MapProperty {
 interface PropertyMapProps {
   properties: MapProperty[];
   mapboxToken: string;
+  centerLngLat?: { lat: number; lng: number } | null;
 }
 
-const PropertyMap = ({ properties, mapboxToken }: PropertyMapProps) => {
+const PropertyMap = ({ properties, mapboxToken, centerLngLat }: PropertyMapProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const markersRef = useRef<mapboxgl.Marker[]>([]);
@@ -143,6 +144,16 @@ const PropertyMap = ({ properties, mapboxToken }: PropertyMapProps) => {
       map.once('load', renderMarkers);
     }
   }, [properties]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !centerLngLat) return;
+    map.flyTo({
+      center: [centerLngLat.lng, centerLngLat.lat],
+      zoom: 13,
+      duration: 1200,
+    });
+  }, [centerLngLat]);
 
   return (
     <div className="relative w-full h-full">

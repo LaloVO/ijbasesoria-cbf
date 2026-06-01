@@ -6,11 +6,25 @@ import PropertyMap from '@/components/map/PropertyMap';
 import PropertyCard from '@/components/PropertyCard';
 import { useProperties } from '@/hooks/useProperties';
 import { useSiteUser } from '@/hooks/useSiteUser';
+import { useSearchParams } from 'react-router-dom';
 
 const MapPage = () => {
   const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS);
   const { properties, isLoading } = useProperties({ limit: 100 });
   const { site } = useSiteUser();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const qParam = searchParams.get('q') || '';
+  const actionParam = searchParams.get('accion') || '';
+  const latParam = searchParams.get('lat') ? parseFloat(searchParams.get('lat')!) : null;
+  const lngParam = searchParams.get('lng') ? parseFloat(searchParams.get('lng')!) : null;
+
+  const centerLngLat = useMemo(() => {
+    if (latParam != null && lngParam != null) {
+      return { lat: latParam, lng: lngParam };
+    }
+    return null;
+  }, [latParam, lngParam]);
 
   const mapboxToken = (
     site?.platform_config?.mapbox_token || 
@@ -20,6 +34,24 @@ const MapPage = () => {
 
   const filtered = useMemo(() => {
     return properties.filter((p) => {
+      // 1. Search Query parameter filter
+      if (qParam) {
+        const q = qParam.toLowerCase();
+        const matchesQuery = 
+          p.nombre.toLowerCase().includes(q) ||
+          (p.descripcion ?? '').toLowerCase().includes(q) ||
+          (p.colonia ?? '').toLowerCase().includes(q) ||
+          (p.direccion ?? '').toLowerCase().includes(q);
+        if (!matchesQuery) return false;
+      }
+
+      // 2. Action Type filter (Venta / Renta)
+      if (actionParam) {
+        const requiredAction = parseInt(actionParam, 10);
+        if (p.id_tipo_accion !== requiredAction) return false;
+      }
+
+      // 3. UI standard filters
       if (filters.priceRange[0] > 0 && p.precio < filters.priceRange[0]) return false;
       if (filters.priceRange[1] < 500_000_000 && p.precio > filters.priceRange[1]) return false;
       if (filters.types.length > 0) {
@@ -27,9 +59,11 @@ const MapPage = () => {
         if (!filters.types.some((t) => tipo.includes(t))) return false;
       }
       if (filters.bedrooms !== null && (p.habitaciones ?? 0) < filters.bedrooms) return false;
+      if (filters.bathrooms !== null && (p.banios ?? 0) < filters.bathrooms) return false;
+      if (filters.parking !== null && (p.estacionamientos ?? 0) < filters.parking) return false;
       return true;
     });
-  }, [properties, filters]);
+  }, [properties, filters, qParam, actionParam]);
 
   const mapProperties = useMemo(
     () =>
@@ -71,14 +105,60 @@ const MapPage = () => {
       <main className="pt-20 h-screen flex overflow-hidden">
         {/* Map column */}
         <div className="relative flex-1 min-w-0">
-          <div className="absolute top-4 left-4 z-10">
+          <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
             <PropertyFilters
               filters={filters}
               onFiltersChange={setFilters}
               resultCount={filtered.length}
             />
+            {(qParam || actionParam) && (
+              <div className="flex flex-wrap gap-1.5 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-200 dark:border-slate-800 p-2 rounded-2xl shadow-elegant w-fit max-w-[90vw]">
+                {qParam && (
+                  <span className="flex items-center gap-1.5 bg-primary/10 text-primary text-[10px] font-sans font-bold uppercase tracking-wider px-3 py-1 rounded-full border border-primary/20">
+                    Búsqueda: {qParam}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const newParams = new URLSearchParams(searchParams);
+                        newParams.delete('q');
+                        newParams.delete('lat');
+                        newParams.delete('lng');
+                        setSearchParams(newParams);
+                      }}
+                      className="hover:text-primary/70 transition-colors ml-1 font-extrabold text-xs"
+                    >
+                      ×
+                    </button>
+                  </span>
+                )}
+                {actionParam && (
+                  <span className="flex items-center gap-1.5 bg-accent/15 text-accent-foreground text-[10px] font-sans font-bold uppercase tracking-wider px-3 py-1 rounded-full border border-accent/25">
+                    Operación: {actionParam === '1' ? 'Venta' : actionParam === '2' ? 'Renta' : 'Remate'}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const newParams = new URLSearchParams(searchParams);
+                        newParams.delete('accion');
+                        setSearchParams(newParams);
+                      }}
+                      className="hover:text-accent/70 transition-colors ml-1 font-extrabold text-xs"
+                    >
+                      ×
+                    </button>
+                  </span>
+                )}
+                <button
+                  onClick={() => {
+                    setSearchParams(new URLSearchParams());
+                  }}
+                  className="text-[9px] uppercase tracking-widest font-extrabold text-slate-400 hover:text-slate-900 dark:hover:text-white px-2 py-1 transition-colors"
+                >
+                  Limpiar Búsqueda
+                </button>
+              </div>
+            )}
           </div>
-          <PropertyMap properties={mapProperties} mapboxToken={mapboxToken} />
+          <PropertyMap properties={mapProperties} mapboxToken={mapboxToken} centerLngLat={centerLngLat} />
         </div>
 
         {/* Property list sidebar */}
