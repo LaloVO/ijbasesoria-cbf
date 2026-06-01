@@ -4,6 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { usePosts } from '@/hooks/usePosts';
+import { useProperties } from '@/hooks/useProperties';
 import { useSiteUser } from '@/hooks/useSiteUser';
 import { CBFProperty, CBFPost, formatPrice } from '@/lib/cbf';
 import {
@@ -61,13 +62,14 @@ interface Article {
 }
 
 type FeedItem =
-  | (CBFProperty & { type: 'property'; authorComment: AuthorComment })
+  | (CBFProperty & { type: 'property'; authorComment?: AuthorComment })
   | Article;
 
 const FALLBACK_IMG = 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?q=80&w=800';
 
 const Propiedades = () => {
   const { posts, isLoading: postsLoading } = usePosts({ limit: 100 });
+  const { properties, isLoading: propsLoading } = useProperties({ limit: 100 });
   const { user } = useSiteUser();
 
   const [selectedFilter, setSelectedFilter] = useState<'todo' | 'propiedades' | 'articulos'>('todo');
@@ -91,15 +93,20 @@ const Propiedades = () => {
     const propPosts = posts.filter((p) => p.property != null);
     const articlePosts = posts.filter((p) => p.property == null);
 
-    const enrichedProps: (CBFProperty & { type: 'property'; authorComment: AuthorComment })[] =
-      propPosts.map((p) => ({
-        ...(p.property as CBFProperty),
-        type: 'property' as const,
-        authorComment: {
-          ...authorSignature,
-          text: cleanContent(p.content),
-        },
-      }));
+    const enrichedProps: (CBFProperty & { type: 'property'; authorComment?: AuthorComment })[] =
+      properties.map((prop) => {
+        const matchingPost = propPosts.find((p) => p.property?.id === prop.id);
+        return {
+          ...prop,
+          type: 'property' as const,
+          authorComment: matchingPost
+            ? {
+                ...authorSignature,
+                text: cleanContent(matchingPost.content),
+              }
+            : undefined,
+        };
+      });
 
     const articles: Article[] = articlePosts.map((p) => ({
       type: 'article' as const,
@@ -124,7 +131,7 @@ const Propiedades = () => {
     }
 
     return items;
-  }, [posts, authorSignature]);
+  }, [posts, properties, authorSignature]);
 
   const filteredFeed = useMemo(() => {
     return feedItems.filter((item) => {
@@ -136,7 +143,7 @@ const Propiedades = () => {
           return (
             item.nombre.toLowerCase().includes(q) ||
             (item.colonia ?? '').toLowerCase().includes(q) ||
-            item.authorComment.text.toLowerCase().includes(q)
+            (item.authorComment?.text ?? '').toLowerCase().includes(q)
           );
         } else {
           return (
@@ -150,8 +157,8 @@ const Propiedades = () => {
     });
   }, [feedItems, selectedFilter, searchQuery]);
 
-  const isLoading = postsLoading;
-  const isEmpty = !isLoading && posts.length === 0;
+  const isLoading = postsLoading || propsLoading;
+  const isEmpty = !isLoading && posts.length === 0 && properties.length === 0;
 
   return (
     <>
@@ -312,23 +319,25 @@ const Propiedades = () => {
                       </div>
 
                       {/* Burbuja de comentario del autor */}
-                      <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
-                        <div className="bg-primary/5 dark:bg-primary/10 border border-primary/20 p-4 rounded-2xl flex flex-col gap-2.5">
-                          <p className="font-sans text-[11px] italic text-slate-600 dark:text-slate-300 leading-relaxed">
-                            "{item.authorComment.text}"
-                          </p>
-                          <div className="flex items-center gap-2">
-                            <img
-                              src={item.authorComment.avatar}
-                              alt={item.authorComment.name}
-                              className="w-6 h-6 rounded-full object-cover border border-white/50"
-                            />
-                            <span className="font-sans font-extrabold text-[10px] text-slate-800 dark:text-white leading-none">
-                              {item.authorComment.name}
-                            </span>
+                      {item.authorComment && item.authorComment.text && (
+                        <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+                          <div className="bg-primary/5 dark:bg-primary/10 border border-primary/20 p-4 rounded-2xl flex flex-col gap-2.5">
+                            <p className="font-sans text-[11px] italic text-slate-600 dark:text-slate-300 leading-relaxed">
+                              "{item.authorComment.text}"
+                            </p>
+                            <div className="flex items-center gap-2">
+                              <img
+                                src={item.authorComment.avatar}
+                                alt={item.authorComment.name}
+                                className="w-6 h-6 rounded-full object-cover border border-white/50"
+                              />
+                              <span className="font-sans font-extrabold text-[10px] text-slate-800 dark:text-white leading-none">
+                                {item.authorComment.name}
+                              </span>
+                            </div>
                           </div>
                         </div>
-                      </div>
+                      )}
                     </div>
                   );
                 } else {
