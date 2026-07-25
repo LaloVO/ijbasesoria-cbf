@@ -24,6 +24,7 @@ const Navbar = () => {
     { href: '/servicios', label: 'Servicios' },
     { href: '/oportunidades', label: 'Oportunidades' },
     { href: '/propiedades', label: 'Propiedades' },
+    { href: '/desarrollos', label: 'Desarrollos' },
     { href: '/mapa', label: 'Mapa' },
   ];
 
@@ -76,10 +77,10 @@ const Navbar = () => {
             )
           ))}
           <Link
-            to="/solicita-inmueble"
+            to="/vender-propiedad"
             className="bg-primary text-white font-sans text-xs uppercase tracking-widest font-bold py-2.5 px-5 rounded-full hover:bg-primary/90 transition-all duration-300 shadow-md hover:shadow-lg hover:scale-105"
           >
-            Búsqueda Inteligente
+            Vender Mi Propiedad
           </Link>
         </div>
 
@@ -119,11 +120,11 @@ const Navbar = () => {
           )
         ))}
         <Link
-          to="/solicita-inmueble"
+          to="/vender-propiedad"
           onClick={() => setIsMobileMenuOpen(false)}
           className="mt-4 bg-primary text-white font-sans text-sm uppercase tracking-widest font-bold py-3.5 px-8 rounded-full hover:bg-primary/90 transition-all duration-300 shadow-md"
         >
-          Búsqueda Inteligente
+          Vender Mi Propiedad
         </Link>
       </div>
     </>

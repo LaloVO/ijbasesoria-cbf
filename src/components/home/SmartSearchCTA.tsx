@@ -1,94 +1,68 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, Heart, Shield } from "lucide-react";
+import { ArrowRight, CheckCircle2, Lock, FileSearch } from "lucide-react";
 
 export default function SmartSearchCTA() {
   return (
-    <section className="py-24 bg-[#FAF7F2] border-t border-[#6E6259]/10 relative overflow-hidden">
-      {/* Background Decorative Blobs */}
-      <div className="absolute top-1/4 -left-20 w-80 h-80 rounded-full bg-[#B76E4D]/5 blur-3xl" />
-      <div className="absolute bottom-1/4 -right-20 w-96 h-96 rounded-full bg-[#6E6259]/5 blur-3xl" />
+    <section className="py-24 px-6 md:px-12 bg-slate-50 dark:bg-slate-950 border-t border-slate-200/60 dark:border-slate-800/60 relative overflow-hidden text-left">
+      {/* Halos decorativos de fondo */}
+      <div className="absolute top-1/2 left-[-10%] w-[400px] h-[400px] bg-primary/5 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[350px] h-[350px] bg-accent/5 rounded-full blur-[100px] pointer-events-none" />
 
-      <div className="max-w-6xl mx-auto px-6 relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+      <div className="w-[92%] md:w-[80%] mx-auto relative z-10">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200/70 dark:border-slate-800/80 rounded-3xl p-8 sm:p-12 shadow-card grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
           
-          {/* Columna Texto: Editorial Revista Lujo */}
-          <div className="lg:col-span-6 space-y-6">
-            
-            <h2 className="font-serif text-3xl md:text-5xl text-[#2E251E] font-medium tracking-tight leading-tight">
-              Encuentra la residencia ideal según tu estilo de vida
+          {/* Columna Izquierda: Mensaje Editorial Directo */}
+          <div className="lg:col-span-7 space-y-6">
+            <h2 className="font-sans text-3xl sm:text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white leading-tight">
+              ¿Buscas o rentas propiedad en CDMX?
             </h2>
-            
-            <p className="font-sans text-sm md:text-base text-[#6E6259]/90 leading-relaxed">
-              Dejar de buscar propiedades en listas rígidas. A través de nuestro embudo calificado de 6 pasos, define tus necesidades reales, tu presupuesto viable, tus métodos de financiamiento y documentación. 
-            </p>
-            
-            <p className="font-sans text-xs md:text-sm text-[#6E6259]/70 leading-relaxed">
-              Nuestro motor avanzado analiza tu rutina diaria para conectar tu perfil con residencias que realmente potencien tu bienestar.
+
+            <p className="font-sans text-slate-600 dark:text-slate-300 text-sm md:text-base font-normal leading-relaxed max-w-xl">
+              Filtramos y encontramos inmuebles ajustados a tus requerimientos legales y financieros. Completa el perfilamiento en 6 pasos para recibir asesoría personalizada y póliza jurídica respaldada.
             </p>
 
-            <div className="grid grid-cols-2 gap-6 pt-4 border-t border-[#6E6259]/15">
-              <div className="flex gap-2">
-                <Heart className="w-5 h-5 text-[#B76E4D] shrink-0" />
-                <div>
-                  <h4 className="font-sans font-bold text-xs text-[#2E251E]">Búsqueda por Rutina</h4>
-                  <p className="text-[10px] text-[#6E6259] mt-0.5">Analizamos tus necesidades familiares e internet.</p>
-                </div>
+            {/* Puntos clave */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+              <div className="flex items-center gap-2.5 text-slate-700 dark:text-slate-300 text-xs font-sans font-bold">
+                <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
+                <span>Investigación de buró y scoring</span>
               </div>
-              <div className="flex gap-2">
-                <Shield className="w-5 h-5 text-[#B76E4D] shrink-0" />
-                <div>
-                  <h4 className="font-sans font-bold text-xs text-[#2E251E]">Expediente Seguro</h4>
-                  <p className="text-[10px] text-[#6E6259] mt-0.5">Tus documentos protegidos por cifrado central.</p>
-                </div>
+              <div className="flex items-center gap-2.5 text-slate-700 dark:text-slate-300 text-xs font-sans font-bold">
+                <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
+                <span>Póliza Jurídica IJB garantizada</span>
               </div>
-            </div>
-
-            <div className="pt-4">
-              <Link
-                to="/solicita-inmueble"
-                className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-[#B76E4D] hover:bg-[#9a5435] text-white rounded-full font-sans font-medium text-sm transition-all duration-300 shadow-elegant hover:scale-105"
-              >
-                Comenzar Búsqueda Inteligente
-                <ArrowRight className="w-4 h-4" />
-              </Link>
+              <div className="flex items-center gap-2.5 text-slate-700 dark:text-slate-300 text-xs font-sans font-bold">
+                <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
+                <span>Expediente 100% digital cifrado</span>
+              </div>
+              <div className="flex items-center gap-2.5 text-slate-700 dark:text-slate-300 text-xs font-sans font-bold">
+                <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
+                <span>Respuesta en menos de 24 hrs</span>
+              </div>
             </div>
           </div>
 
-          {/* Columna Imagen: Luxury Floating Card Mockup */}
-          <div className="lg:col-span-6 relative flex items-center justify-center">
-            
-            {/* Imagen Principal */}
-            <div className="aspect-[4/3] w-full max-w-lg rounded-3xl overflow-hidden shadow-elegant border border-white/40 relative">
-              <img
-                src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=800&auto=format&fit=crop"
-                alt="Luxury Estate Lifestyle"
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
-            </div>
-
-            {/* Tarjeta Glassmorphic Flotante (Mockup del Funnel) */}
-            <div className="absolute -bottom-6 left-6 md:-left-6 max-w-xs bg-white/40 backdrop-blur-lg border border-white/50 rounded-2xl p-5 shadow-elegant animate-float">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-8 h-8 rounded-full bg-[#B76E4D] flex items-center justify-center font-serif text-sm text-white font-medium">
-                  IA
-                </div>
-                <div>
-                  <h5 className="font-sans font-bold text-xs text-[#2E251E]">Perfil de Estilo de Vida</h5>
-                  <span className="text-[9px] text-[#6E6259] block">Evaluando requerimientos...</span>
-                </div>
+          {/* Columna Derecha: Tarjeta CTA Enlazada */}
+          <div className="lg:col-span-5 bg-slate-50 dark:bg-slate-950 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-6 sm:p-8 flex flex-col justify-between gap-6">
+            <div className="space-y-3">
+              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                <FileSearch className="w-5 h-5" />
               </div>
-
-              <p className="font-sans text-[11px] text-[#2E251E] italic leading-relaxed bg-white/50 p-2.5 rounded-xl border border-white/20">
-                &ldquo;Familia con 2 hijos pequeños y mascota. Requiere oficina para home office con internet de alta velocidad, jardín privado amplio, y escuelas bilingües a menos de 15 minutos de distancia.&rdquo;
+              <h3 className="font-sans text-xl font-extrabold text-slate-900 dark:text-white">
+                Iniciar Búsqueda Inteligente
+              </h3>
+              <p className="font-sans text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-normal">
+                Define tus zonas deseadas, presupuesto y tipo de arrendamiento o adquisición en minutos.
               </p>
-
-              <div className="flex items-center justify-between mt-3 text-[10px] font-sans font-semibold text-green-700">
-                <span>✓ Rango de Presupuesto: Apto</span>
-                <span>Match: 96%</span>
-              </div>
             </div>
 
+            <Link
+              to="/solicita-inmueble"
+              className="w-full py-4 bg-primary hover:bg-primary/95 text-white font-sans text-xs uppercase tracking-widest font-extrabold rounded-full transition-all duration-300 shadow-md hover:shadow-lg flex items-center justify-center gap-2 group"
+            >
+              <span>Búsqueda Inteligente</span>
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </Link>
           </div>
 
         </div>

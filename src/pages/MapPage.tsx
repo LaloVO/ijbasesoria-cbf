@@ -10,7 +10,7 @@ import PropertyFilters, {
 } from '@/components/map/PropertyFilters';
 import PropertyMap from '@/components/map/PropertyMap';
 import PropertyCard from '@/components/PropertyCard';
-import { useProperties } from '@/hooks/useProperties';
+import { usePropertyCatalog } from '@/hooks/usePropertyCatalog';
 import { useSiteUser } from '@/hooks/useSiteUser';
 import { useSearchParams } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -52,7 +52,7 @@ const VERTICAL_ID_BY_TIPO: Record<string, number> = {
 const MapPage = () => {
   const [viewMode, setViewMode] = useState<'map' | 'list'>('map');
   const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS);
-  const { properties, isLoading } = useProperties({ limit: 100 });
+  const { standaloneUnits: properties, isLoading } = usePropertyCatalog();
   const { site } = useSiteUser();
   const [searchParams, setSearchParams] = useSearchParams();
 

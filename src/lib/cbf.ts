@@ -31,10 +31,22 @@ export interface CBFProperty {
   estacionamientos?: number;
   direccion?: string;
   colonia?: string;
+  ciudad_nombre?: string;
+  estado_nombre?: string;
   id_tipo_accion?: number;
   latitud?: number;
   longitud?: number;
+  caracteristicas?: string;
   imagenes_propiedades?: CBFImage[];
+  // Campos de desarrollo
+  is_unit?: boolean | null;
+  parent_id?: number | null;
+  development_verticals?: string[] | null;
+  fecha_entrega?: string | null;
+  fecha_inicio?: string | null;
+  comision?: number | null;
+  descripcion_estado?: string | null;
+  descripcion_inversion?: string | null;
 }
 
 export interface CBFUser {
@@ -70,6 +82,7 @@ export async function fetchProperties(params?: {
   offset?: number;
   tipo?: string;
   id_tipo_accion?: number;
+  is_unit?: boolean;
 }): Promise<{ data: CBFProperty[]; pagination: { limit: number; offset: number; total: number } }> {
   const query = new URLSearchParams();
   if (params?.limit) query.set("limit", String(params.limit));
@@ -77,6 +90,8 @@ export async function fetchProperties(params?: {
   if (params?.tipo) query.set("tipo", params.tipo);
   if (params?.id_tipo_accion !== undefined)
     query.set("id_tipo_accion", String(params.id_tipo_accion));
+  if (params?.is_unit !== undefined)
+    query.set("is_unit", String(params.is_unit));
 
   const res = await fetch(`${BASE_URL}/properties?${query}`, { headers: headers() });
   if (!res.ok) throw new Error("Error al cargar propiedades");
@@ -167,4 +182,17 @@ export async function fetchPosts(params?: {
   const res = await fetch(`${BASE_URL}/posts?${query}`, { headers: headers() });
   if (!res.ok) throw new Error("Error al cargar posts");
   return res.json();
+}
+
+export function actionLabel(id?: number): string {
+  const map: Record<number, string> = {
+    1: "Venta",
+    2: "Renta",
+    3: "Traspaso",
+    4: "Pre-Venta",
+    5: "Aportación",
+    6: "Remate",
+    7: "Permuta",
+  };
+  return id ? (map[id] ?? "Venta") : "Venta";
 }

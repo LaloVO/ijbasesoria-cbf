@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import PropertyCard from '@/components/PropertyCard';
-import { useProperties } from '@/hooks/useProperties';
+import { usePropertyCatalog } from '@/hooks/usePropertyCatalog';
 import { useEffect, useRef, useState } from 'react';
 
 const SkeletonCard = () => (
@@ -14,7 +14,7 @@ const SkeletonCard = () => (
 const PropertiesSection = () => {
   const sectionRef = useRef<HTMLElement>(null);
   const [isVisible, setIsVisible] = useState(false);
-  const { properties, isLoading } = useProperties({ limit: 6 });
+  const { standaloneUnits: properties, isLoading } = usePropertyCatalog();
 
   useEffect(() => {
     const observer = new IntersectionObserver(

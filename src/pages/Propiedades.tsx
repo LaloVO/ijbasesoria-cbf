@@ -4,7 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { usePosts } from '@/hooks/usePosts';
-import { useProperties } from '@/hooks/useProperties';
+import { usePropertyCatalog } from '@/hooks/usePropertyCatalog';
 import { useSiteUser } from '@/hooks/useSiteUser';
 import { CBFProperty, CBFPost, formatPrice } from '@/lib/cbf';
 import {
@@ -69,7 +69,7 @@ const FALLBACK_IMG = 'https://images.unsplash.com/photo-1564013799919-ab600027ff
 
 const Propiedades = () => {
   const { posts, isLoading: postsLoading } = usePosts({ limit: 100 });
-  const { properties, isLoading: propsLoading } = useProperties({ limit: 100 });
+  const { standaloneUnits: properties, isLoading: propsLoading } = usePropertyCatalog();
   const { user } = useSiteUser();
 
   const [selectedFilter, setSelectedFilter] = useState<'todo' | 'propiedades' | 'articulos'>('todo');
