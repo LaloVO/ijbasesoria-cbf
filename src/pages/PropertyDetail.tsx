@@ -49,11 +49,18 @@ const PropertyDetail = () => {
     return (
       <>
         <Navbar />
-        <main className="pt-24 min-h-screen bg-surface px-6 md:px-12 max-w-[90rem] mx-auto animate-pulse">
-          <div className="h-8 bg-primary/10 rounded w-1/3 mb-8" />
-          <div className="aspect-video bg-primary/10 rounded-none mb-8" />
-          <div className="h-10 bg-primary/10 rounded w-1/2 mb-4" />
-          <div className="h-4 bg-primary/10 rounded w-1/3" />
+        <main className="min-h-screen bg-slate-50 px-6 pb-20 pt-32 dark:bg-slate-950 md:px-12">
+          <div className="mx-auto w-full max-w-7xl animate-pulse space-y-8">
+            <div className="h-5 w-40 rounded-full bg-slate-200 dark:bg-slate-800" />
+            <div className="space-y-4">
+              <div className="h-12 w-3/4 rounded-2xl bg-slate-200 dark:bg-slate-800" />
+              <div className="h-5 w-1/3 rounded-full bg-slate-200 dark:bg-slate-800" />
+            </div>
+            <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
+              <div className="aspect-[16/10] rounded-3xl bg-slate-200 dark:bg-slate-800 lg:col-span-8" />
+              <div className="min-h-80 rounded-3xl bg-slate-200 dark:bg-slate-800 lg:col-span-4" />
+            </div>
+          </div>
         </main>
         <Footer />
       </>
@@ -64,10 +71,10 @@ const PropertyDetail = () => {
     return (
       <>
         <Navbar />
-        <main className="pt-24 min-h-screen bg-surface flex items-center justify-center">
-          <div className="text-center text-primary">
-            <p className="font-serif text-2xl font-light mb-4">Propiedad no encontrada</p>
-            <Link to="/mapa" className="text-xs uppercase tracking-widest border-b border-accent pb-1 text-accent hover:text-primary hover:border-primary transition-colors">
+        <main className="flex min-h-screen items-center justify-center bg-slate-50 px-6 pt-24 dark:bg-slate-950">
+          <div className="w-full max-w-lg rounded-3xl border border-slate-200 bg-white p-10 text-center shadow-elegant dark:border-slate-800 dark:bg-slate-900">
+            <p className="mb-5 font-sans text-2xl font-extrabold text-slate-900 dark:text-white">Propiedad no encontrada</p>
+            <Link to="/mapa" className="inline-flex rounded-full bg-primary px-6 py-3 font-sans text-xs font-extrabold uppercase tracking-wider text-white transition-colors hover:bg-primary/90">
               Ver todas las propiedades
             </Link>
           </div>
@@ -121,223 +128,98 @@ const PropertyDetail = () => {
 
       <Navbar />
 
-      <main className="pt-20 min-h-screen bg-[#FAF7F2]">
-        
-        {/* Navigation back */}
-        <div className="px-6 md:px-12 py-6 max-w-[90rem] mx-auto">
+      <main className="relative min-h-screen overflow-hidden bg-slate-50 pb-24 pt-28 dark:bg-slate-950">
+        <div className="pointer-events-none absolute left-[-12%] top-[-6%] h-[420px] w-[420px] rounded-full bg-primary/5 blur-[110px]" />
+        <div className="pointer-events-none absolute right-[-10%] top-[32%] h-[380px] w-[380px] rounded-full bg-accent/5 blur-[110px]" />
+
+        <div className="relative z-10 mx-auto w-[92%] max-w-7xl space-y-10 md:w-[80%]">
           <Link
             to="/mapa"
-            className="inline-flex items-center gap-2 text-xs uppercase tracking-widest font-sans font-medium text-[#6E6259]/65 hover:text-[#B76E4D] transition-colors duration-300"
+            className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 font-sans text-[10px] font-extrabold uppercase tracking-wider text-slate-600 shadow-card transition-all hover:border-primary/30 hover:text-primary dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300"
           >
-            <ArrowLeft className="w-3.5 h-3.5 text-[#B76E4D]" />
+            <ArrowLeft className="h-3.5 w-3.5" />
             Regresar al Catálogo
           </Link>
-        </div>
 
-        {/* Dynamic high-end masonry layout for images */}
-        <div className="px-6 md:px-12 max-w-[90rem] mx-auto mb-12">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 overflow-hidden">
-            {/* Main Picture */}
-            <div className="md:col-span-2 aspect-[4/3] bg-[#E9DDCF]/10">
-              <img
-                src={mainImage}
-                alt={property.nombre}
-                className="w-full h-full object-cover"
-                loading="lazy"
-              />
+          <header className="max-w-5xl space-y-5 text-left">
+            <h1 className="font-sans text-4xl font-extrabold leading-[1.05] tracking-tight text-slate-900 dark:text-white sm:text-5xl md:text-6xl">
+              {property.nombre}
+            </h1>
+
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="rounded-full bg-primary px-3 py-1.5 font-sans text-[9px] font-extrabold uppercase tracking-widest text-white">
+                {badge}
+              </span>
+              {property.tipo && (
+                <span className="rounded-full border border-slate-200 bg-white px-3 py-1.5 font-sans text-[9px] font-extrabold uppercase tracking-widest text-slate-600 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300">
+                  {property.tipo}
+                </span>
+              )}
+              {verticals.map((v) => (
+                <span
+                  key={v}
+                  className="inline-flex items-center gap-1 rounded-full border border-primary/20 bg-primary/10 px-3 py-1.5 font-sans text-[9px] font-extrabold uppercase tracking-widest text-primary"
+                >
+                  <Layers className="h-2.5 w-2.5" />
+                  {v}
+                </span>
+              ))}
             </div>
-            {/* Supporting Pictures */}
-            <div className="flex flex-col gap-3 h-full">
-              {images.slice(1, 3).map((img, i) => (
-                <div key={i} className="aspect-[4/3] md:aspect-auto md:flex-1 bg-[#E9DDCF]/10 overflow-hidden">
+
+            {location && (
+              <p className="flex items-center gap-2 font-sans text-sm font-medium text-slate-500 dark:text-slate-400">
+                <MapPin className="h-4 w-4 shrink-0 text-primary" />
+                {location}
+              </p>
+            )}
+          </header>
+
+          <section className="grid grid-cols-1 items-start gap-8 lg:grid-cols-12">
+            <div className="overflow-hidden rounded-3xl border border-slate-200/70 bg-white p-2 shadow-elegant dark:border-slate-800/80 dark:bg-slate-900 lg:col-span-8">
+              <div className="grid gap-2 md:grid-cols-12">
+                <div className="aspect-[4/3] overflow-hidden rounded-2xl bg-slate-100 md:col-span-8 md:aspect-auto md:min-h-[520px] dark:bg-slate-800">
                   <img
-                    src={img.image_url}
-                    alt={`${property.nombre} ${i + 2}`}
-                    className="w-full h-full object-cover"
+                    src={mainImage}
+                    alt={property.nombre}
+                    className="h-full w-full object-cover transition-transform duration-700 hover:scale-[1.02]"
                     loading="lazy"
                   />
                 </div>
-              ))}
-              {images.length < 2 && (
-                <div className="hidden md:flex flex-1 bg-[#E9DDCF]/5 items-center justify-center border border-[#E9DDCF]/30 border-dashed text-[#6E6259]/30 text-xs font-serif italic">
-                  Curaduría fotográfica Raquel Meléndrez
+
+                <div className="hidden gap-2 md:col-span-4 md:grid md:grid-rows-2">
+                  {images.slice(1, 3).map((img, i) => (
+                    <div key={i} className="min-h-0 overflow-hidden rounded-2xl bg-slate-100 dark:bg-slate-800">
+                      <img
+                        src={img.image_url}
+                        alt={`${property.nombre} ${i + 2}`}
+                        className="h-full w-full object-cover transition-transform duration-700 hover:scale-105"
+                        loading="lazy"
+                      />
+                    </div>
+                  ))}
+                  {images.length < 2 && (
+                    <div className="flex items-center justify-center rounded-2xl border border-dashed border-slate-700 bg-slate-950 p-6 text-center font-sans text-xs font-medium text-slate-500">
+                      Curaduría fotográfica Raquel Meléndrez
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Content Structure */}
-        <div className="px-6 md:px-12 max-w-[90rem] mx-auto pb-24">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
-            
-            {/* Left Main Pane: Details */}
-            <div className="lg:col-span-8 text-[#6E6259]">
-              
-              {/* Title & Location */}
-              <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl font-light leading-tight mb-4">
-                {property.nombre}
-              </h1>
-
-              {/* Badges */}
-              <div className="flex items-center gap-3 mb-6">
-                <span className="px-3 py-1 bg-[#B76E4D] text-white text-[9px] uppercase tracking-widest font-sans font-bold">
-                  {badge}
-                </span>
-                {property.tipo && (
-                  <span className="px-3 py-1 bg-white border border-[#E9DDCF] text-[#6E6259]/80 text-[9px] uppercase tracking-widest font-sans font-semibold">
-                    {property.tipo}
-                  </span>
-                )}
-                {verticals.map((v) => (
-                  <span
-                    key={v}
-                    className="flex items-center gap-1 px-3 py-1 bg-[#B76E4D]/10 border border-[#B76E4D]/25 text-[#B76E4D] text-[9px] uppercase tracking-widest font-sans font-semibold"
-                  >
-                    <Layers className="w-2.5 h-2.5" />
-                    {v}
-                  </span>
-                ))}
               </div>
-
-              {location && (
-                <p className="flex items-center gap-2 text-[#6E6259]/70 font-sans text-xs uppercase tracking-wider mb-8 font-light">
-                  <MapPin className="w-3.5 h-3.5 text-[#B76E4D]" />
-                  {location}
-                </p>
-              )}
-
-              {/* Technical Specifications Grid with clean white boxes */}
-              {isDevelopment ? (
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-10">
-                  {childUnits.length > 0 && (
-                    <div className="bg-white border border-[#E9DDCF]/40 p-4 text-center shadow-sm">
-                      <HomeIcon className="w-4 h-4 mx-auto mb-2 text-[#B76E4D]" />
-                      <p className="font-serif text-xl text-[#6E6259]">{childUnits.length}</p>
-                      <p className="text-[9px] uppercase tracking-widest text-[#6E6259]/50 font-sans font-medium mt-1">
-                        {childUnits.length === 1 ? 'Unidad' : 'Unidades'}
-                      </p>
-                    </div>
-                  )}
-                  {fechaInicio && (
-                    <div className="bg-white border border-[#E9DDCF]/40 p-4 text-center shadow-sm">
-                      <CalendarCheck className="w-4 h-4 mx-auto mb-2 text-[#B76E4D]" />
-                      <p className="font-serif text-sm text-[#6E6259]">{fechaInicio}</p>
-                      <p className="text-[9px] uppercase tracking-widest text-[#6E6259]/50 font-sans font-medium mt-1">Inicio de obra</p>
-                    </div>
-                  )}
-                  {fechaEntrega && (
-                    <div className="bg-white border border-[#E9DDCF]/40 p-4 text-center shadow-sm">
-                      <CalendarCheck className="w-4 h-4 mx-auto mb-2 text-[#B76E4D]" />
-                      <p className="font-serif text-sm text-[#6E6259]">{fechaEntrega}</p>
-                      <p className="text-[9px] uppercase tracking-widest text-[#6E6259]/50 font-sans font-medium mt-1">Entrega estimada</p>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-10">
-                  {property.habitaciones != null && (
-                    <div className="bg-white border border-[#E9DDCF]/40 p-4 text-center shadow-sm">
-                      <Bed className="w-4 h-4 mx-auto mb-2 text-[#B76E4D]" />
-                      <p className="font-serif text-xl text-[#6E6259]">{property.habitaciones}</p>
-                      <p className="text-[9px] uppercase tracking-widest text-[#6E6259]/50 font-sans font-medium mt-1">Recámaras</p>
-                    </div>
-                  )}
-                  {property.banios != null && (
-                    <div className="bg-white border border-[#E9DDCF]/40 p-4 text-center shadow-sm">
-                      <Bath className="w-4 h-4 mx-auto mb-2 text-[#B76E4D]" />
-                      <p className="font-serif text-xl text-[#6E6259]">{property.banios}</p>
-                      <p className="text-[9px] uppercase tracking-widest text-[#6E6259]/50 font-sans font-medium mt-1">Baños</p>
-                    </div>
-                  )}
-                  {property.area != null && (
-                    <div className="bg-white border border-[#E9DDCF]/40 p-4 text-center shadow-sm">
-                      <Square className="w-4 h-4 mx-auto mb-2 text-[#B76E4D]" />
-                      <p className="font-serif text-xl text-[#6E6259]">{property.area}</p>
-                      <p className="text-[9px] uppercase tracking-widest text-[#6E6259]/50 font-sans font-medium mt-1">Metros²</p>
-                    </div>
-                  )}
-                  {property.estacionamientos != null && (
-                    <div className="bg-white border border-[#E9DDCF]/40 p-4 text-center shadow-sm">
-                      <Car className="w-4 h-4 mx-auto mb-2 text-[#B76E4D]" />
-                      <p className="font-serif text-xl text-[#6E6259]">{property.estacionamientos}</p>
-                      <p className="text-[9px] uppercase tracking-widest text-[#6E6259]/50 font-sans font-medium mt-1">Estac.</p>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Description section */}
-              {(property.descripcion || property.descripcion_estado || property.descripcion_inversion) && (
-                <div className="border-t border-[#E9DDCF]/35 pt-8 space-y-8">
-                  {property.descripcion && (
-                    <div>
-                      <h2 className="font-serif text-xl text-[#6E6259] mb-4 font-normal">Descripción de la Residencia</h2>
-                      <p className="font-sans text-sm sm:text-base text-[#6E6259]/85 leading-relaxed font-light whitespace-pre-line">
-                        {property.descripcion}
-                      </p>
-                    </div>
-                  )}
-
-                  {property.descripcion_estado && (
-                    <div>
-                      <h3 className="text-[9px] uppercase tracking-widest text-[#B76E4D] font-sans font-bold mb-3">
-                        Estado / Condición del Inmueble
-                      </h3>
-                      <p className="font-sans text-sm sm:text-base text-[#6E6259]/85 leading-relaxed font-light whitespace-pre-line">
-                        {property.descripcion_estado}
-                      </p>
-                    </div>
-                  )}
-
-                  {property.descripcion_inversion && (
-                    <div>
-                      <h3 className="text-[9px] uppercase tracking-widest text-[#B76E4D] font-sans font-bold mb-3">
-                        Potencial de Inversión
-                      </h3>
-                      <p className="font-sans text-sm sm:text-base text-[#6E6259]/85 leading-relaxed font-light whitespace-pre-line">
-                        {property.descripcion_inversion}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Unidades disponibles del desarrollo */}
-              {isDevelopment && (
-                <div className="border-t border-[#E9DDCF]/35 pt-8 mt-8">
-                  <h2 className="font-serif text-xl text-[#6E6259] mb-5 font-normal">
-                    Unidades disponibles{childUnits.length > 0 ? ` (${childUnits.length})` : ''}
-                  </h2>
-                  {childUnits.length > 0 ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                      {childUnits.map((unit) => (
-                        <PropertyCard key={unit.id} property={unit} />
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="font-sans text-sm text-[#6E6259]/70">
-                      Aún no hay unidades específicas publicadas para este desarrollo.
-                    </p>
-                  )}
-                </div>
-              )}
             </div>
 
-            {/* Right Pane: Sticky Luxury contact card */}
-            <div className="lg:col-span-4 sticky top-28">
-              <div className="bg-white border border-[#E9DDCF]/55 p-6 md:p-8 shadow-elegant text-[#6E6259]">
-                <span className="block text-[9px] uppercase tracking-widest text-[#6E6259]/45 mb-1 font-sans">
+            <aside className="relative overflow-hidden rounded-3xl border border-slate-800 bg-slate-950 p-6 text-white shadow-elegant lg:sticky lg:top-28 lg:col-span-4 md:p-8">
+              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:14px_14px] opacity-20" />
+              <div className="relative z-10">
+                <span className="mb-2 block font-sans text-[9px] font-extrabold uppercase tracking-[0.18em] text-slate-500">
                   {isDevelopment ? 'Precio de las unidades' : 'Precio de la propiedad'}
                 </span>
-                <p className="font-sans font-bold text-3xl md:text-4xl text-[#B76E4D] mb-1">
+                <p className="mb-1 font-sans text-3xl font-extrabold tracking-tight text-primary md:text-4xl">
                   {isDevelopment
                     ? fromPrice != null
                       ? `Desde ${formatPrice(fromPrice, property.moneda ?? 'MXN')}`
                       : 'Precio a consultar'
                     : formatPrice(property.precio, property.moneda ?? 'MXN')}
                 </p>
-                <p className="text-[10px] uppercase tracking-widest text-[#6E6259]/60 font-sans mb-8">
+                <p className="mb-8 font-sans text-[10px] font-bold uppercase tracking-widest text-slate-500">
                   {isDevelopment
                     ? 'desde la unidad más económica'
                     : badge === 'Renta'
@@ -345,43 +227,153 @@ const PropertyDetail = () => {
                     : 'precio total de adquisición'}
                 </p>
 
-                {/* Profile card of advisor */}
-                <div className="flex items-center gap-4 mb-8 pb-6 border-b border-[#E9DDCF]/35">
-                  <div className="relative w-12 h-12 overflow-hidden bg-[#E9DDCF]/10 shrink-0">
+                <div className="mb-8 flex items-center gap-4 border-b border-slate-800 pb-6">
+                  <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-2xl border border-slate-700 bg-slate-900">
                     <img
                       src={user?.imagen_perfil_usuario ?? '/raquel.jpeg'}
                       alt={user?.nombre_usuario ?? 'Raquel Meléndrez'}
-                      className="w-full h-full object-cover"
+                      className="h-full w-full object-cover"
                     />
                   </div>
                   <div>
-                    <p className="font-sans font-semibold text-sm text-[#6E6259] uppercase tracking-wider">
+                    <p className="font-sans text-sm font-extrabold text-white">
                       {user?.nombre_usuario ?? 'Raquel Meléndrez'}
                     </p>
-                    <p className="font-sans text-[10px] uppercase tracking-widest text-[#B76E4D] font-medium mt-0.5">
+                    <p className="mt-1 font-sans text-[10px] font-bold uppercase tracking-widest text-accent">
                       Fundadora & Asesora Principal
                     </p>
                   </div>
                 </div>
 
-                {/* Highly contrast Terracotta button for contact */}
                 <a
                   href={whatsappUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2.5 w-full py-4 bg-[#B76E4D] hover:bg-[#6E6259] text-white font-sans uppercase text-[10px] tracking-[0.25em] font-semibold transition-all duration-300 shadow-md hover:-translate-y-0.5"
+                  className="flex w-full items-center justify-center gap-2.5 rounded-full bg-primary px-5 py-4 font-sans text-[10px] font-extrabold uppercase tracking-[0.18em] text-white shadow-md transition-all hover:-translate-y-0.5 hover:bg-primary/90"
                 >
-                  <MessageCircle className="w-3.5 h-3.5" />
+                  <MessageCircle className="h-4 w-4" />
                   Agendar Cita Privada
                 </a>
 
-                <p className="text-center font-sans text-[9px] uppercase tracking-widest text-[#6E6259]/50 mt-4 leading-relaxed font-light">
+                <p className="mt-4 text-center font-sans text-[9px] font-medium uppercase leading-relaxed tracking-widest text-slate-500">
                   Atención exclusiva directa · Respuesta rápida vía WhatsApp
                 </p>
               </div>
-            </div>
+            </aside>
+          </section>
 
-          </div>
+          {isDevelopment ? (
+            <section className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+              {childUnits.length > 0 && (
+                <div className="rounded-2xl border border-slate-200/70 bg-white p-5 shadow-card dark:border-slate-800/80 dark:bg-slate-900">
+                  <HomeIcon className="mb-4 h-5 w-5 text-primary" />
+                  <p className="font-sans text-2xl font-extrabold text-slate-900 dark:text-white">{childUnits.length}</p>
+                  <p className="mt-1 font-sans text-[9px] font-bold uppercase tracking-widest text-slate-400">
+                    {childUnits.length === 1 ? 'Unidad' : 'Unidades'}
+                  </p>
+                </div>
+              )}
+              {fechaInicio && (
+                <div className="rounded-2xl border border-slate-200/70 bg-white p-5 shadow-card dark:border-slate-800/80 dark:bg-slate-900">
+                  <CalendarCheck className="mb-4 h-5 w-5 text-primary" />
+                  <p className="font-sans text-base font-extrabold text-slate-900 dark:text-white">{fechaInicio}</p>
+                  <p className="mt-1 font-sans text-[9px] font-bold uppercase tracking-widest text-slate-400">Inicio de obra</p>
+                </div>
+              )}
+              {fechaEntrega && (
+                <div className="rounded-2xl border border-slate-200/70 bg-white p-5 shadow-card dark:border-slate-800/80 dark:bg-slate-900">
+                  <CalendarCheck className="mb-4 h-5 w-5 text-accent" />
+                  <p className="font-sans text-base font-extrabold text-slate-900 dark:text-white">{fechaEntrega}</p>
+                  <p className="mt-1 font-sans text-[9px] font-bold uppercase tracking-widest text-slate-400">Entrega estimada</p>
+                </div>
+              )}
+            </section>
+          ) : (
+            <section className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+              {property.habitaciones != null && (
+                <div className="rounded-2xl border border-slate-200/70 bg-white p-5 shadow-card dark:border-slate-800/80 dark:bg-slate-900">
+                  <Bed className="mb-4 h-5 w-5 text-primary" />
+                  <p className="font-sans text-2xl font-extrabold text-slate-900 dark:text-white">{property.habitaciones}</p>
+                  <p className="mt-1 font-sans text-[9px] font-bold uppercase tracking-widest text-slate-400">Recámaras</p>
+                </div>
+              )}
+              {property.banios != null && (
+                <div className="rounded-2xl border border-slate-200/70 bg-white p-5 shadow-card dark:border-slate-800/80 dark:bg-slate-900">
+                  <Bath className="mb-4 h-5 w-5 text-primary" />
+                  <p className="font-sans text-2xl font-extrabold text-slate-900 dark:text-white">{property.banios}</p>
+                  <p className="mt-1 font-sans text-[9px] font-bold uppercase tracking-widest text-slate-400">Baños</p>
+                </div>
+              )}
+              {property.area != null && (
+                <div className="rounded-2xl border border-slate-200/70 bg-white p-5 shadow-card dark:border-slate-800/80 dark:bg-slate-900">
+                  <Square className="mb-4 h-5 w-5 text-accent" />
+                  <p className="font-sans text-2xl font-extrabold text-slate-900 dark:text-white">{property.area}</p>
+                  <p className="mt-1 font-sans text-[9px] font-bold uppercase tracking-widest text-slate-400">Metros²</p>
+                </div>
+              )}
+              {property.estacionamientos != null && (
+                <div className="rounded-2xl border border-slate-200/70 bg-white p-5 shadow-card dark:border-slate-800/80 dark:bg-slate-900">
+                  <Car className="mb-4 h-5 w-5 text-accent" />
+                  <p className="font-sans text-2xl font-extrabold text-slate-900 dark:text-white">{property.estacionamientos}</p>
+                  <p className="mt-1 font-sans text-[9px] font-bold uppercase tracking-widest text-slate-400">Estac.</p>
+                </div>
+              )}
+            </section>
+          )}
+
+          {(property.descripcion || property.descripcion_estado || property.descripcion_inversion) && (
+            <section className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+              {property.descripcion && (
+                <div className="rounded-3xl border border-slate-200/70 bg-white p-7 shadow-card dark:border-slate-800/80 dark:bg-slate-900 md:p-9 lg:col-span-2">
+                  <h2 className="mb-4 font-sans text-2xl font-extrabold text-slate-900 dark:text-white">Descripción de la Residencia</h2>
+                  <p className="whitespace-pre-line font-sans text-sm leading-relaxed text-slate-600 dark:text-slate-300 sm:text-base">
+                    {property.descripcion}
+                  </p>
+                </div>
+              )}
+
+              {property.descripcion_estado && (
+                <div className="rounded-3xl border border-slate-200/70 bg-white p-7 shadow-card dark:border-slate-800/80 dark:bg-slate-900 md:p-8">
+                  <h3 className="mb-3 font-sans text-lg font-extrabold text-slate-900 dark:text-white">
+                    Estado / Condición del Inmueble
+                  </h3>
+                  <p className="whitespace-pre-line font-sans text-sm leading-relaxed text-slate-600 dark:text-slate-300">
+                    {property.descripcion_estado}
+                  </p>
+                </div>
+              )}
+
+              {property.descripcion_inversion && (
+                <div className="rounded-3xl border border-primary/20 bg-gradient-to-br from-primary/10 to-accent/5 p-7 shadow-card dark:border-primary/20 dark:from-primary/10 dark:to-slate-900 md:p-8">
+                  <h3 className="mb-3 font-sans text-lg font-extrabold text-slate-900 dark:text-white">
+                    Potencial de Inversión
+                  </h3>
+                  <p className="whitespace-pre-line font-sans text-sm leading-relaxed text-slate-600 dark:text-slate-300">
+                    {property.descripcion_inversion}
+                  </p>
+                </div>
+              )}
+            </section>
+          )}
+
+          {isDevelopment && (
+            <section className="rounded-3xl border border-slate-200/70 bg-white p-7 shadow-card dark:border-slate-800/80 dark:bg-slate-900 md:p-9">
+              <h2 className="mb-6 font-sans text-2xl font-extrabold text-slate-900 dark:text-white">
+                Unidades disponibles{childUnits.length > 0 ? ` (${childUnits.length})` : ''}
+              </h2>
+              {childUnits.length > 0 ? (
+                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                  {childUnits.map((unit) => (
+                    <PropertyCard key={unit.id} property={unit} variant="compact" />
+                  ))}
+                </div>
+              ) : (
+                <p className="font-sans text-sm text-slate-500 dark:text-slate-400">
+                  Aún no hay unidades específicas publicadas para este desarrollo.
+                </p>
+              )}
+            </section>
+          )}
         </div>
       </main>
 

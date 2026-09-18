@@ -262,8 +262,9 @@ const Propiedades = () => {
                   const location = [item.colonia, item.direccion].filter(Boolean).join(' • ');
 
                   return (
-                    <div
+                    <Link
                       key={item.id}
+                      to={`/properties/${item.id}`}
                       className="group bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/50 dark:border-slate-800/50 p-4 shadow-card hover:shadow-elegant transition-all duration-300 hover:scale-[1.01] flex flex-col justify-between"
                     >
                       <div>
@@ -338,7 +339,7 @@ const Propiedades = () => {
                           </div>
                         </div>
                       )}
-                    </div>
+                    </Link>
                   );
                 } else {
                   // Tarjeta de artículo / post
