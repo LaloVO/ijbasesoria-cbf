@@ -1,8 +1,11 @@
 import { ShieldCheck, UserCheck, Scale, ClipboardCheck, MessageSquare, ShieldAlert, Check } from 'lucide-react';
 import { useState } from 'react';
+import { useSiteUser } from '@/hooks/useSiteUser';
+import { buildWhatsAppUrl } from '@/lib/cbf';
 
 const PolizaSection = () => {
   const [activeTab, setActiveTab] = useState<'propietario' | 'inquilino'>('propietario');
+  const { user } = useSiteUser();
 
   const landlordBenefits = [
     {
@@ -49,13 +52,13 @@ const PolizaSection = () => {
       <div className="luxury-container max-w-6xl mx-auto relative z-10 text-center space-y-16">
         {/* Section Header */}
         <div className="max-w-2xl mx-auto space-y-4">
+          <h2 className="font-sans text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white">
+            ¿Qué es una Póliza Jurídica de Arrendamiento?
+          </h2>
           <div className="flex items-center justify-center gap-1.5 text-accent text-xs uppercase tracking-[0.2em] font-extrabold">
             <ShieldCheck className="w-3.5 h-3.5" />
             <span>Seguridad Arrendaticia PropTech</span>
           </div>
-          <h2 className="font-sans text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white">
-            ¿Qué es una Póliza Jurídica de Arrendamiento?
-          </h2>
           <p className="font-sans text-slate-500 dark:text-slate-400 text-sm md:text-base leading-relaxed">
             Es la herramienta legal de protección más confiable al rentar tu propiedad. Acompañamos tanto a arrendadores como arrendatarios, blindando el proceso contractual para prevenir y solucionar fricciones.
           </p>
@@ -124,7 +127,7 @@ const PolizaSection = () => {
               </p>
             </div>
             <a
-              href={`https://wa.me/525516070024?text=Hola%20IJB%20Asesoria,%20me%20gustaria%20saber%20mas%20sobre%20sus%20polizas%20juridicas%20para%20${activeTab}s.`}
+              href={buildWhatsAppUrl(user?.telefono_usuario, `Hola IJB Asesoria, me gustaria saber mas sobre sus polizas juridicas para ${activeTab}s.`)}
               target="_blank"
               rel="noreferrer"
               className={`px-6 py-3 rounded-full text-white font-sans text-xs uppercase tracking-widest font-extrabold transition-all duration-300 shadow-md ${

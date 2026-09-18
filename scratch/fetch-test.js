@@ -1,5 +1,7 @@
 const BASE_URL = 'https://homepty-cbf-tite-testing-chi.vercel.app/api/cbf';
-const API_KEY = 'cbf_live_89fac2fb-ee78-4d40-8c73-5a75977c2dbe';
+const API_KEY = process.env.VITE_CBF_API_KEY;
+
+if (!API_KEY) throw new Error('VITE_CBF_API_KEY is required');
 
 async function main() {
   try {

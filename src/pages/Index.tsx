@@ -5,6 +5,7 @@ import HeroSection from '@/components/home/HeroSection';
 import PropertiesSection from '@/components/home/PropertiesSection';
 import AIFeatureSection from '@/components/home/AIFeatureSection';
 import SmartSearchCTA from '@/components/home/SmartSearchCTA';
+import ValuationWidget from '@/components/home/ValuationWidget';
 
 const Index = () => {
   return (
@@ -23,6 +24,7 @@ const Index = () => {
         <HeroSection />
         <PropertiesSection />
         <AIFeatureSection />
+        <ValuationWidget />
         <SmartSearchCTA />
       </main>
 

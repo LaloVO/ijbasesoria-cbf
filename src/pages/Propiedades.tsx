@@ -6,7 +6,7 @@ import Footer from '@/components/Footer';
 import { usePosts } from '@/hooks/usePosts';
 import { usePropertyCatalog } from '@/hooks/usePropertyCatalog';
 import { useSiteUser } from '@/hooks/useSiteUser';
-import { CBFProperty, CBFPost, formatPrice } from '@/lib/cbf';
+import { buildWhatsAppUrl, CBFProperty, CBFPost, formatPrice } from '@/lib/cbf';
 import {
   BookOpen,
   Clock,
@@ -278,9 +278,6 @@ const Propiedades = () => {
 
                         {/* Datos */}
                         <div className="px-1 space-y-2">
-                          <div className="text-[10px] font-sans font-bold uppercase tracking-widest text-primary">
-                            {actionBadge}
-                          </div>
                           <div className="flex justify-between items-start gap-4">
                             <h3 className="font-sans text-lg font-extrabold text-slate-900 dark:text-white group-hover:text-primary transition-colors leading-snug line-clamp-2">
                               {item.nombre}
@@ -288,6 +285,9 @@ const Propiedades = () => {
                             <span className="font-sans font-extrabold text-lg text-primary whitespace-nowrap">
                               {formatPrice(item.precio)}
                             </span>
+                          </div>
+                          <div className="text-[10px] font-sans font-bold uppercase tracking-widest text-primary">
+                            {actionBadge}
                           </div>
                           <p className="font-sans text-xs text-slate-500 flex items-center gap-1">
                             <MapPin className="w-3.5 h-3.5 text-primary flex-shrink-0" />
@@ -348,22 +348,21 @@ const Propiedades = () => {
                       className="group bg-gradient-to-br from-secondary via-slate-900 to-secondary text-white rounded-3xl border border-slate-800 p-5 shadow-card hover:shadow-elegant transition-all duration-300 flex flex-col justify-between min-h-[420px]"
                     >
                       <div>
-                        {/* Fecha */}
-                        <div className="flex justify-between items-center mb-5 text-[10px] font-sans font-bold uppercase tracking-wider">
-                          <span className="text-accent text-[9px] uppercase tracking-[0.15em] font-extrabold">
-                            {item.isLong ? 'Blog' : 'Análisis'}
-                          </span>
-                          <span className="text-slate-400 flex items-center gap-1">
-                            <Clock className="w-3 h-3" />
-                            {item.date}
-                          </span>
-                        </div>
-
                         {/* Título e extracto */}
                         <div className="space-y-3">
                           <h3 className="font-sans text-xl font-extrabold group-hover:text-accent transition-colors leading-snug">
                             {item.title}
                           </h3>
+                          {/* Fecha */}
+                          <div className="flex justify-between items-center text-[10px] font-sans font-bold uppercase tracking-wider">
+                            <span className="text-accent text-[9px] uppercase tracking-[0.15em] font-extrabold">
+                              {item.isLong ? 'Blog' : 'Análisis'}
+                            </span>
+                            <span className="text-slate-400 flex items-center gap-1">
+                              <Clock className="w-3 h-3" />
+                              {item.date}
+                            </span>
+                          </div>
                           <p className="font-sans text-xs text-slate-300 leading-relaxed">
                             {item.excerpt}
                           </p>
@@ -494,7 +493,7 @@ const Propiedades = () => {
                 Cerrar
               </button>
               <a
-                href={`https://wa.me/525516070024?text=Hola%20IJB%20Asesoria,%20me%20interesa%20el%20art%C3%ADculo%20%22${encodeURIComponent(selectedArticle.title)}%22`}
+                href={buildWhatsAppUrl(user?.telefono_usuario, `Hola IJB Asesoria, me interesa el artículo "${selectedArticle.title}"`)}
                 target="_blank"
                 rel="noreferrer"
                 className="px-6 py-2.5 bg-primary hover:bg-primary/90 text-white text-xs font-sans font-bold uppercase tracking-wider rounded-xl shadow-md transition-all flex items-center gap-1.5"

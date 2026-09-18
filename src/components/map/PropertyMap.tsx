@@ -73,6 +73,14 @@ const PropertyMap = ({ properties, mapboxToken, centerLngLat }: PropertyMapProps
   }, [mapboxToken]);
 
   useEffect(() => {
+    const container = containerRef.current;
+    if (!container || typeof ResizeObserver === 'undefined') return;
+    const observer = new ResizeObserver(() => mapRef.current?.resize());
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
 
@@ -182,7 +190,7 @@ const PropertyMap = ({ properties, mapboxToken, centerLngLat }: PropertyMapProps
                 <span className="text-white font-medium text-sm">{selected.price}</span>
               </div>
             </div>
-            <div className="p-3">
+            <a href={`/properties/${selected.id}`} className="block p-3">
               <p className="font-serif text-base mb-0.5 line-clamp-1">{selected.title}</p>
               <p className="text-xs text-muted-foreground mb-2">{selected.area}</p>
               <div className="flex gap-3 text-xs text-muted-foreground">
@@ -196,7 +204,7 @@ const PropertyMap = ({ properties, mapboxToken, centerLngLat }: PropertyMapProps
                   <Square className="w-3 h-3" /> {selected.sqm}m²
                 </span>
               </div>
-            </div>
+            </a>
           </div>
         </div>
       )}

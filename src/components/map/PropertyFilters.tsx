@@ -1,6 +1,7 @@
 import { Popover, PopoverContent, PopoverTrigger, PopoverClose } from '@/components/ui/popover';
 import { ChevronDown, X, Filter } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useTaxonomy } from '@/hooks/useTaxonomy';
 
 export interface Filters {
   priceRange: [number, number];
@@ -13,6 +14,7 @@ export interface Filters {
   verticalId: number | null;
   segmentId: number | null;
   subsegmentId: number | null;
+  preventa?: boolean;
 }
 
 interface PropertyFiltersProps {
@@ -46,6 +48,7 @@ export const DEFAULT_FILTERS: Filters = {
   verticalId: null,
   segmentId: null,
   subsegmentId: null,
+  preventa: false,
 };
 
 export const VERTICALS = [
@@ -315,6 +318,7 @@ const chip =
   'flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-colors select-none shrink-0 cursor-pointer';
 
 const PropertyFilters = ({ filters, onFiltersChange, resultCount }: PropertyFiltersProps) => {
+  const { taxonomy } = useTaxonomy();
   const priceActive =
     filters.priceRange[0] !== DEFAULT_FILTERS.priceRange[0] ||
     filters.priceRange[1] !== DEFAULT_FILTERS.priceRange[1];
@@ -326,6 +330,7 @@ const PropertyFilters = ({ filters, onFiltersChange, resultCount }: PropertyFilt
     filters.areaRange[0] !== DEFAULT_FILTERS.areaRange[0] ||
     filters.areaRange[1] !== DEFAULT_FILTERS.areaRange[1];
   const amenitiesActive = filters.amenities.length > 0;
+  const preventaActive = !!filters.preventa;
   const taxonomyActive =
     filters.verticalId !== null ||
     filters.segmentId !== null ||
@@ -342,6 +347,7 @@ const PropertyFilters = ({ filters, onFiltersChange, resultCount }: PropertyFilt
   const activeFiltersList = [
     priceActive,
     typesActive,
+    preventaActive,
     bedsActive,
     bathsActive,
     parkingActive,
@@ -357,10 +363,17 @@ const PropertyFilters = ({ filters, onFiltersChange, resultCount }: PropertyFilt
     ? filters.types.map((t) => PROPERTY_TYPES.find((x) => x.id === t)?.label).join(', ')
     : 'Tipo';
 
-  const selectedVertical = VERTICALS.find(v => v.id === filters.verticalId);
-  const segmentsForVertical = filters.verticalId ? SEGMENTS[filters.verticalId] || [] : [];
+  const canonicalVerticals = taxonomy?.verticals ?? [];
+  const verticalOptions = canonicalVerticals.length > 0 ? canonicalVerticals : VERTICALS;
+  const selectedVertical = verticalOptions.find(v => v.id === filters.verticalId);
+  const canonicalSelectedVertical = canonicalVerticals.find(v => v.id === filters.verticalId);
+  const segmentsForVertical = filters.verticalId
+    ? canonicalSelectedVertical?.segments ?? SEGMENTS[filters.verticalId] ?? []
+    : [];
   const selectedSegment = segmentsForVertical.find(s => s.id === filters.segmentId);
-  const subsegmentsForSegment = filters.segmentId ? SUBSEGMENTS[filters.segmentId] || [] : [];
+  const subsegmentsForSegment = filters.segmentId
+    ? canonicalSelectedVertical?.segments.find(segment => segment.id === filters.segmentId)?.subsegments ?? SUBSEGMENTS[filters.segmentId] ?? []
+    : [];
   const selectedSubsegment = subsegmentsForSegment.find(ss => ss.id === filters.subsegmentId);
 
   const visibleAmenities = filters.verticalId
@@ -504,7 +517,7 @@ const PropertyFilters = ({ filters, onFiltersChange, resultCount }: PropertyFilt
               className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-2.5 py-1.5 text-xs outline-none focus:border-primary/50 text-slate-950 dark:text-white font-medium"
             >
               <option value="">Todas las Verticales</option>
-              {VERTICALS.map(v => (
+              {verticalOptions.map(v => (
                 <option key={v.id} value={v.id}>{v.nombre}</option>
               ))}
             </select>

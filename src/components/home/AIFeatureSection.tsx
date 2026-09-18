@@ -43,11 +43,6 @@ const AIFeatureSection = () => {
         {/* Left Column: Data-focused Slogans & Stats */}
         <div className="lg:col-span-6 text-left space-y-8">
           <div className="space-y-4">
-            <div className="flex items-center gap-1.5 text-slate-400 text-xs font-bold uppercase tracking-[0.2em]">
-              <Cpu className="w-3.5 h-3.5 text-primary" />
-              <span>PropTech Engine v1.0.4</span>
-            </div>
-
             <h2
               className={`font-sans text-4xl md:text-5xl font-extrabold leading-tight text-white transition-all duration-1000 delay-200 ${
                 isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
@@ -56,6 +51,11 @@ const AIFeatureSection = () => {
               Datos invisibles,<br />
               <span className="text-primary font-light italic font-sans">resultados tangibles.</span>
             </h2>
+
+            <div className="flex items-center gap-1.5 text-slate-400 text-xs font-bold uppercase tracking-[0.2em]">
+              <Cpu className="w-3.5 h-3.5 text-primary" />
+              <span>PropTech Engine v1.0.4</span>
+            </div>
 
             <p
               className={`font-sans text-sm md:text-base font-normal text-slate-400 leading-relaxed max-w-md transition-all duration-1000 delay-300 ${

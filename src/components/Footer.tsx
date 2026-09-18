@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Mail, Phone, MapPin } from 'lucide-react';
 import { useSiteUser } from '@/hooks/useSiteUser';
+import { buildWhatsAppUrl } from '@/lib/cbf';
 
 const Footer = () => {
   const { site, user } = useSiteUser();
@@ -71,12 +72,12 @@ const Footer = () => {
                 <li className="flex items-center gap-2">
                   <Phone className="w-4 h-4 text-primary shrink-0" />
                   <a 
-                    href="https://wa.me/525516070024" 
+                    href={buildWhatsAppUrl(user?.telefono_usuario)}
                     target="_blank" 
                     rel="noreferrer"
                     className="hover:text-primary transition-colors"
                   >
-                    55 1607 0024
+                    {user?.telefono_usuario ?? '55 1607 0024'}
                   </a>
                 </li>
                 <li className="flex items-center gap-2">

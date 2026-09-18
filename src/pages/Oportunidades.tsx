@@ -3,7 +3,8 @@ import { Helmet } from 'react-helmet-async';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { useProperties } from '@/hooks/useProperties';
-import { formatPrice } from '@/lib/cbf';
+import { buildWhatsAppUrl, formatPrice } from '@/lib/cbf';
+import { useSiteUser } from '@/hooks/useSiteUser';
 import { 
   MapPin, 
   AlertTriangle,
@@ -21,6 +22,7 @@ const getProcesalStatus = (id: string): 'Litigio Avanzado' | 'Cesión Inmediata'
 };
 
 const Oportunidades = () => {
+  const { user } = useSiteUser();
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -79,28 +81,28 @@ const Oportunidades = () => {
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
               <div className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800/60 p-6 rounded-2xl shadow-card">
-                <span className="text-xs font-bold text-primary font-mono tracking-widest block mb-3">[ ETAPA 01 ]</span>
                 <h3 className="font-sans text-base font-extrabold text-slate-900 dark:text-white mb-2">
                   Diagnóstico y Dictamen Legal
                 </h3>
+                <span className="text-xs font-bold text-primary font-mono tracking-widest block mb-3">[ ETAPA 01 ]</span>
                 <p className="font-sans text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
                   Auditamos directamente el expediente judicial en los juzgados correspondientes para verificar que el juicio del banco no presente vicios procesales.
                 </p>
               </div>
               <div className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800/60 p-6 rounded-2xl shadow-card">
-                <span className="text-xs font-bold text-primary font-mono tracking-widest block mb-3">[ ETAPA 02 ]</span>
                 <h3 className="font-sans text-base font-extrabold text-slate-900 dark:text-white mb-2">
                   Cesión de Derechos Notariada
                 </h3>
+                <span className="text-xs font-bold text-primary font-mono tracking-widest block mb-3">[ ETAPA 02 ]</span>
                 <p className="font-sans text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
                   Realizas la compra mediante una cesión de derechos adjudicatarios o litigiosos firmada directamente ante Notario Público oficial.
                 </p>
               </div>
               <div className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800/60 p-6 rounded-2xl shadow-card">
-                <span className="text-xs font-bold text-primary font-mono tracking-widest block mb-3">[ ETAPA 03 ]</span>
                 <h3 className="font-sans text-base font-extrabold text-slate-900 dark:text-white mb-2">
                   Posesión y Escrituración
                 </h3>
+                <span className="text-xs font-bold text-primary font-mono tracking-widest block mb-3">[ ETAPA 03 ]</span>
                 <p className="font-sans text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
                   Nuestros abogados ejecutan el desalojo o la entrega voluntaria, solicitando al juez la escrituración judicial final a tu nombre para la posesión física.
                 </p>
@@ -213,7 +215,7 @@ const Oportunidades = () => {
                       {/* WhatsApp CTA button */}
                       <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800">
                         <a
-                          href={`https://wa.me/525516070024?text=Hola%20IJB%20Asesoria,%20me%20interesa%20la%20oportunidad%20de%20remate%20en%20"${encodeURIComponent(title)}"%20con%20precio%20de%20${formatPrice(rematePrice)}.`}
+                          href={buildWhatsAppUrl(user?.telefono_usuario, `Hola IJB Asesoria, me interesa la oportunidad de remate en "${title}" con precio de ${formatPrice(rematePrice)}.`)}
                           target="_blank"
                           rel="noreferrer"
                           className="w-full py-3 bg-primary hover:bg-primary/90 text-white font-sans text-xs uppercase tracking-widest font-extrabold rounded-xl transition-all flex items-center justify-center gap-1.5 shadow-md"

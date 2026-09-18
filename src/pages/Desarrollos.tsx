@@ -117,17 +117,26 @@ const Desarrollos = () => {
                           loading="lazy"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent md:bg-gradient-to-r md:from-transparent md:to-slate-950/20" />
-                        {dev.tipo && (
-                          <span className="absolute top-4 left-4 bg-slate-900/90 backdrop-blur-md text-white text-[9px] uppercase tracking-widest font-sans font-extrabold px-3 py-1.5 rounded-full border border-slate-700">
-                            {dev.tipo}
-                          </span>
-                        )}
                       </div>
 
                       <div className={cn('p-7 md:p-8 flex flex-col justify-between gap-6', featured ? 'md:col-span-5' : '')}>
                         <div className="space-y-4">
-                          {verticals.length > 0 && (
+                          <h2
+                            className={cn(
+                              'font-sans font-extrabold text-slate-900 dark:text-white leading-tight group-hover:text-primary transition-colors duration-300',
+                              featured ? 'text-2xl sm:text-3xl' : 'text-xl'
+                            )}
+                          >
+                            {dev.nombre}
+                          </h2>
+
+                          {(dev.tipo || verticals.length > 0) && (
                             <div className="flex items-center gap-2 flex-wrap">
+                              {dev.tipo && (
+                                <span className="bg-slate-900/90 backdrop-blur-md text-white text-[9px] uppercase tracking-widest font-sans font-extrabold px-3 py-1.5 rounded-full border border-slate-700">
+                                  {dev.tipo}
+                                </span>
+                              )}
                               {verticals.slice(0, 2).map((v) => (
                                 <span
                                   key={v}
@@ -139,15 +148,6 @@ const Desarrollos = () => {
                               ))}
                             </div>
                           )}
-
-                          <h2
-                            className={cn(
-                              'font-sans font-extrabold text-slate-900 dark:text-white leading-tight group-hover:text-primary transition-colors duration-300',
-                              featured ? 'text-2xl sm:text-3xl' : 'text-xl'
-                            )}
-                          >
-                            {dev.nombre}
-                          </h2>
 
                           {dev.descripcion && (
                             <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 font-sans font-normal leading-relaxed line-clamp-2">

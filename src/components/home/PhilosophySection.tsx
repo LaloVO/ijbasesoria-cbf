@@ -79,12 +79,12 @@ const PhilosophySection = () => {
         {/* Section Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 text-left">
           <div className="max-w-xl space-y-4">
-            <span className={`text-primary text-xs uppercase tracking-[0.2em] font-bold block transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-              Nuestros Servicios
-            </span>
             <h2 className={`font-sans text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white transition-all duration-1000 delay-100 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
               Un enfoque contemporáneo en bienes raíces
             </h2>
+            <span className={`text-primary text-xs uppercase tracking-[0.2em] font-bold block transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+              Nuestros Servicios
+            </span>
           </div>
           <p className={`font-sans text-slate-500 dark:text-slate-400 text-sm md:text-base max-w-md transition-all duration-1000 delay-200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
             Fucionamos el acompañamiento humano experto con los estándares tecnológicos y de seguridad más altos de la industria PropTech.

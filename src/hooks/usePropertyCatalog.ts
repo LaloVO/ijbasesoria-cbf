@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { fetchProperties, CBFProperty } from "@/lib/cbf";
+import { fetchAllProperties, CBFProperty } from "@/lib/cbf";
 
 export interface DevelopmentSummary extends CBFProperty {
   fromPrice: number | null;
@@ -14,27 +14,26 @@ export interface DevelopmentSummary extends CBFProperty {
  * - Child unit: is_unit === true && parent_id != null (belongs to a development, never listed on its own)
  */
 export function usePropertyCatalog() {
-  const { data: developmentsData, isLoading: loadingDev } = useQuery({
-    queryKey: ["properties", { is_unit: false, limit: 50 }],
-    queryFn: () => fetchProperties({ is_unit: false, limit: 50 }),
+  const { data: developmentsRaw = [], isLoading: loadingDev, error: developmentsError } = useQuery({
+    queryKey: ["properties", "all", { is_unit: false }],
+    queryFn: () => fetchAllProperties({ is_unit: false }),
     staleTime: 2 * 60 * 1000,
   });
-  const { data: unitsData, isLoading: loadingUnits } = useQuery({
-    queryKey: ["properties", { is_unit: true, limit: 100 }],
-    queryFn: () => fetchProperties({ is_unit: true, limit: 100 }),
+  const { data: units = [], isLoading: loadingUnits, error: unitsError } = useQuery({
+    queryKey: ["properties", "all", { is_unit: true }],
+    queryFn: () => fetchAllProperties({ is_unit: true }),
     staleTime: 2 * 60 * 1000,
   });
-
-  const developmentsRaw = (developmentsData?.data ?? []) as CBFProperty[];
-  const units = (unitsData?.data ?? []) as CBFProperty[];
 
   const childUnitsByParent = useMemo(() => {
-    const map = new Map<number, CBFProperty[]>();
+    const map = new Map<string | number, CBFProperty[]>();
     units.forEach((u) => {
       if (u.parent_id == null) return;
-      const key = Number(u.parent_id);
-      if (!map.has(key)) map.set(key, []);
-      map.get(key)!.push(u);
+      const stringKey = String(u.parent_id);
+      const numericKey = Number(u.parent_id);
+      if (!map.has(stringKey)) map.set(stringKey, []);
+      map.get(stringKey)!.push(u);
+      if (!Number.isNaN(numericKey)) map.set(numericKey, map.get(stringKey)!);
     });
     return map;
   }, [units]);
@@ -47,7 +46,7 @@ export function usePropertyCatalog() {
   const developments: DevelopmentSummary[] = useMemo(
     () =>
       developmentsRaw.map((dev) => {
-        const children = childUnitsByParent.get(Number(dev.id)) ?? [];
+        const children = childUnitsByParent.get(String(dev.id)) ?? childUnitsByParent.get(Number(dev.id)) ?? [];
         const prices = children.map((c) => c.precio).filter((p) => p > 0);
         return {
           ...dev,
@@ -62,6 +61,8 @@ export function usePropertyCatalog() {
     developments,
     standaloneUnits,
     childUnitsByParent,
+    allUnits: units,
     isLoading: loadingDev || loadingUnits,
+    error: developmentsError ?? unitsError,
   };
 }

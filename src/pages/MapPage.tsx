@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import Navbar from '@/components/Navbar';
 import PropertyFilters, { 
@@ -11,29 +11,37 @@ import PropertyFilters, {
 import PropertyMap from '@/components/map/PropertyMap';
 import PropertyCard from '@/components/PropertyCard';
 import { usePropertyCatalog } from '@/hooks/usePropertyCatalog';
+import { useGeocodedProperties } from '@/hooks/useGeocodedProperties';
 import { useSiteUser } from '@/hooks/useSiteUser';
+import { CBFProperty } from '@/lib/cbf';
+import type { DevelopmentSummary } from '@/hooks/usePropertyCatalog';
 import { useSearchParams } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { List, Map as MapIcon } from 'lucide-react';
 
 const VERTICAL_ID_BY_TIPO: Record<string, number> = {
   'casa': 1,
+  'casa sola': 1,
+  'casa en condominio': 1,
   'departamento': 1,
   'loft': 1,
   'penthouse': 1,
   'studio': 1,
   'villa': 1,
+  'villa / residencia': 1,
   'local': 2,
   'local comercial': 2,
   'plaza comercial': 2,
   'restaurante': 2,
   'oficina': 3,
+  'oficina corporativa': 3,
   'consultorio': 3,
   'bodega': 4,
   'nave': 4,
   'nave comercial': 4,
   'nave industrial': 4,
   'parque industrial': 4,
+  'terreno industrial': 7,
   'hotel': 5,
   'hotelero': 5,
   'motel': 5,
@@ -43,7 +51,10 @@ const VERTICAL_ID_BY_TIPO: Record<string, number> = {
   'clínica': 6,
   'residencia geriátrica': 6,
   'lote': 7,
+  'lote residencial': 7,
   'terreno': 7,
+  'terreno urbano': 7,
+  'suelo': 7,
   'rancho': 7,
   'hacienda': 7,
   'finca': 7,
@@ -51,10 +62,23 @@ const VERTICAL_ID_BY_TIPO: Record<string, number> = {
 
 const MapPage = () => {
   const [viewMode, setViewMode] = useState<'map' | 'list'>('map');
-  const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS);
-  const { standaloneUnits: properties, isLoading } = usePropertyCatalog();
-  const { site } = useSiteUser();
   const [searchParams, setSearchParams] = useSearchParams();
+  const preventaParam = searchParams.get('preventa') === 'true';
+  const [filters, setFilters] = useState<Filters>(() => ({ ...DEFAULT_FILTERS, preventa: preventaParam }));
+  const { developments, standaloneUnits, childUnitsByParent, isLoading } = usePropertyCatalog();
+  const { site } = useSiteUser();
+
+  useEffect(() => {
+    const preventaFromUrl = searchParams.get('preventa') === 'true';
+    setFilters((current) => current.preventa === preventaFromUrl
+      ? current
+      : { ...current, preventa: preventaFromUrl });
+  }, [searchParams]);
+
+  const properties = useMemo(
+    () => [...developments, ...standaloneUnits],
+    [developments, standaloneUnits]
+  );
 
   const qParam = searchParams.get('q') || '';
   const actionParam = searchParams.get('accion') || '';
@@ -68,11 +92,12 @@ const MapPage = () => {
     return null;
   }, [latParam, lngParam]);
 
-  const mapboxToken = (
-    site?.platform_config?.mapbox_token || 
-    import.meta.env.VITE_MAPBOX_ACCESS_TOKEN || 
-    ('pk.eyJ1IjoiaG9tZXB0eW14Ii' + 'wiYSI6ImNtZjlpZ3p4czBzaWUya3B6MnB1dHZ4aWoifQ.' + 'ZKWLoVLu-fVaTXRD7HfXTg')
-  ).trim();
+  const mapboxToken = (site?.platform_config?.mapbox_token ?? '').trim();
+
+  const effectivePrice = (property: CBFProperty | DevelopmentSummary) =>
+    property.is_unit === false
+      ? (property as DevelopmentSummary).fromPrice ?? property.precio
+      : property.precio;
 
   const filtered = useMemo(() => {
     return properties.filter((p) => {
@@ -94,33 +119,60 @@ const MapPage = () => {
       }
 
       // 3. UI standard filters (Price)
-      if (filters.priceRange[0] > 0 && p.precio < filters.priceRange[0]) return false;
-      if (filters.priceRange[1] < 500_000_000 && p.precio > filters.priceRange[1]) return false;
+      const price = effectivePrice(p);
+      if (filters.priceRange[0] > 0 && price < filters.priceRange[0]) return false;
+      if (filters.priceRange[1] < 500_000_000 && price > filters.priceRange[1]) return false;
+
+      const tipo = (p.tipo ?? '').toLowerCase();
+      const developmentVerticals = (p.development_verticals ?? []).map((value) => value.toLowerCase());
+      const children = childUnitsByParent.get(String(p.id)) ?? childUnitsByParent.get(Number(p.id)) ?? [];
+      const childTypes = children.map((child) => (child.tipo ?? '').toLowerCase());
+      const taxonomyEntries = Array.isArray(p.taxonomy_entries) ? p.taxonomy_entries : [];
       
       // 4. Property Types filter
       if (filters.types.length > 0) {
-        const tipo = (p.tipo ?? '').toLowerCase();
-        if (!filters.types.some((t) => tipo.includes(t))) return false;
+        const matchesType = filters.types.some((selectedType) => {
+          const normalized = selectedType.toLowerCase();
+          if (normalized === 'terreno' || normalized === 'lote') {
+            return [tipo, ...developmentVerticals, ...childTypes].some((value) =>
+              value.includes('terreno') || value.includes('lote') || value.includes('suelo')
+            );
+          }
+          return [tipo, ...developmentVerticals, ...childTypes].some((value) => value.includes(normalized));
+        });
+        if (!matchesType) return false;
       }
       
       // 5. Vertical taxonomy filter
       if (filters.verticalId !== null) {
-        const verticalOfProp = VERTICAL_ID_BY_TIPO[p.tipo?.toLowerCase() ?? ''] || null;
-        if (verticalOfProp !== filters.verticalId) return false;
+        const explicitVerticalIds = taxonomyEntries
+          .map((entry) => entry.vertical_id)
+          .filter((value): value is number => typeof value === 'number');
+        const inferredVerticalIds = [tipo, ...childTypes]
+          .map((value) => VERTICAL_ID_BY_TIPO[value])
+          .filter((value): value is number => typeof value === 'number');
+        const verticalNames = taxonomyEntries
+          .map((entry) => entry.vertical_name?.toLowerCase())
+          .filter((value): value is string => Boolean(value));
+        const nameMatches = filters.verticalId === 7
+          ? [...developmentVerticals, ...verticalNames, tipo, ...childTypes].some((value) => /terreno|lote|suelo/.test(value))
+          : filters.verticalId === 1
+          ? [...developmentVerticals, ...verticalNames, tipo, ...childTypes].some((value) => /residencial|habitacional|casa|departamento|villa|loft|penthouse/.test(value))
+          : false;
+        if (![...explicitVerticalIds, ...inferredVerticalIds].includes(filters.verticalId) && !nameMatches) return false;
       }
 
       // 6. Segment taxonomy filter
       if (filters.segmentId !== null) {
         if (filters.verticalId === 1) {
           // Residencial segments are price brackets
-          const price = p.precio;
           if (filters.segmentId === 1 && price > 687_000) return false;
           if (filters.segmentId === 2 && (price < 400_000 || price > 1_200_000)) return false;
           if (filters.segmentId === 3 && (price < 1_200_000 || price > 2_500_000)) return false;
           if (filters.segmentId === 4 && (price < 2_500_000 || price > 5_100_000)) return false;
           if (filters.segmentId === 5 && (price < 5_100_000 || price > 15_000_000)) return false;
           if (filters.segmentId === 6 && price < 15_000_000) return false;
-        } else {
+        } else if (!taxonomyEntries.some((entry) => entry.segment_ids?.includes(filters.segmentId!))) {
           // Segment semantic keywords
           const segmentObj = Object.values(SEGMENTS).flat().find(s => s.id === filters.segmentId);
           if (segmentObj) {
@@ -134,12 +186,15 @@ const MapPage = () => {
 
       // 7. Subsegment taxonomy filter
       if (filters.subsegmentId !== null) {
+        if (taxonomyEntries.some((entry) => entry.subsegment_ids?.includes(filters.subsegmentId))) {
+          // Canonical Brain taxonomy wins over textual fallback.
+        } else {
         const subsegmentObj = Object.values(SUBSEGMENTS).flat().find(ss => ss.id === filters.subsegmentId);
         if (subsegmentObj) {
           const subsegmentName = subsegmentObj.nombre.toLowerCase();
           const text = ((p.nombre ?? '') + ' ' + (p.descripcion ?? '') + ' ' + (p.tipo ?? '')).toLowerCase();
           
-          let keywords = [subsegmentName];
+          const keywords = [subsegmentName];
           if (subsegmentName === 'casa en condominio' || subsegmentName === 'casa en coto privado') {
             keywords.push('condominio', 'coto', 'privada');
           } else if (subsegmentName === 'loft') {
@@ -153,16 +208,21 @@ const MapPage = () => {
           const matchesSubsegment = keywords.some(kw => text.includes(kw));
           if (!matchesSubsegment) return false;
         }
+        }
       }
 
       // 8. Dynamic amenities matching
       if (filters.amenities.length > 0) {
         const desc = ((p.descripcion ?? '') + ' ' + p.nombre + ' ' + (p.caracteristicas ?? '')).toLowerCase();
+        const propertyAmenityIds = new Set(
+          (p.amenidades_propiedades ?? []).map((amenity) => amenity.id_amenidad)
+        );
         const allMatched = filters.amenities.every((amenityId) => {
+          if (propertyAmenityIds.has(amenityId)) return true;
           const amenityName = AMENIDADES_OPTS.find(a => a.id === amenityId)?.label.toLowerCase();
           if (!amenityName) return false;
           
-          let keywords = [amenityName];
+          const keywords = [amenityName];
           if (amenityName === 'alberca al aire libre' || amenityName === 'alberca techada') {
             keywords.push('alberca', 'piscina');
           } else if (amenityName === 'vigilancia 24 hrs' || amenityName === 'control de acceso') {
@@ -190,33 +250,41 @@ const MapPage = () => {
       if (filters.parking !== null && (p.estacionamientos ?? 0) < filters.parking) return false;
       if (filters.areaRange[0] > 0 && (p.area ?? 0) < filters.areaRange[0]) return false;
       if (filters.areaRange[1] < 100_000 && (p.area ?? 0) > filters.areaRange[1]) return false;
+      if (filters.preventa) {
+        const text = `${p.nombre ?? ''} ${p.descripcion ?? ''} ${p.caracteristicas ?? ''}`.toLowerCase();
+        if (!text.includes('preventa') && !text.includes('pre-venta') && p.id_tipo_accion !== 4) return false;
+      }
       return true;
     });
-  }, [properties, filters, qParam, actionParam]);
+  }, [properties, filters, qParam, actionParam, childUnitsByParent]);
+
+  const geocodedFiltered = useGeocodedProperties(filtered, mapboxToken);
 
   const mapProperties = useMemo(
     () =>
-      filtered
+      geocodedFiltered
         .filter((p) => p.latitud != null && p.longitud != null)
-        .map((p) => ({
+        .map((p) => {
+          const price = effectivePrice(p);
+          return ({
           id: p.id,
           title: p.nombre,
           location: p.colonia ?? '',
           area: p.colonia ?? '',
-          price: new Intl.NumberFormat('es-MX', {
+          price: `${p.is_unit === false ? 'Desde ' : ''}${new Intl.NumberFormat('es-MX', {
             style: 'currency',
-            currency: 'MXN',
+            currency: p.moneda || 'MXN',
             maximumFractionDigits: 0,
-          }).format(p.precio),
-          priceValue: p.precio,
+          }).format(price)}`,
+          priceValue: price,
           image: p.imagenes_propiedades?.[0]?.image_url ?? '',
           bedrooms: p.habitaciones ?? 0,
           bathrooms: p.banios ?? 0,
           sqm: p.area ?? 0,
           type: (p.tipo ?? 'casa') as 'casa' | 'departamento' | 'penthouse' | 'terreno',
           coordinates: { lat: p.latitud!, lng: p.longitud! },
-        })),
-    [filtered]
+        });}),
+    [geocodedFiltered]
   );
 
   return (

@@ -14,6 +14,9 @@ import Oportunidades from "./pages/Oportunidades";
 import Desarrollos from "./pages/Desarrollos";
 import VenderPropiedad from "./pages/VenderPropiedad";
 import NotFound from "./pages/NotFound";
+import WhatsAppButton from "./components/WhatsAppButton";
+import SiteSeo from "./components/SiteSeo";
+import AnalyticsTracker from "./components/AnalyticsTracker";
 
 const queryClient = new QueryClient();
 
@@ -24,6 +27,9 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
+          <SiteSeo />
+          <AnalyticsTracker />
+          <WhatsAppButton />
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/mapa" element={<MapPage />} />

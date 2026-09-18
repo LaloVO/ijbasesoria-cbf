@@ -5,7 +5,7 @@ import { ArrowLeft, Bed, Bath, Square, Car, MapPin, MessageCircle, CalendarCheck
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import PropertyCard from '@/components/PropertyCard';
-import { fetchProperty, formatPrice, actionLabel } from '@/lib/cbf';
+import { fetchProperty, formatPrice, actionLabel, buildWhatsAppUrl } from '@/lib/cbf';
 import { useSiteUser } from '@/hooks/useSiteUser';
 import { usePropertyCatalog } from '@/hooks/usePropertyCatalog';
 
@@ -26,7 +26,9 @@ const PropertyDetail = () => {
   });
 
   const isDevelopment = property?.is_unit === false;
-  const childUnits = isDevelopment && id ? childUnitsByParent.get(Number(id)) ?? [] : [];
+  const childUnits = isDevelopment && id
+    ? childUnitsByParent.get(String(id)) ?? childUnitsByParent.get(Number(id)) ?? []
+    : [];
   const verticals = property?.development_verticals ?? [];
   const fechaInicio = formatFecha(property?.fecha_inicio);
   const fechaEntrega = formatFecha(property?.fecha_entrega);
@@ -38,11 +40,10 @@ const PropertyDetail = () => {
       })()
     : null;
 
-  const whatsappNumber = user?.telefono_usuario?.replace(/\D/g, '') ?? '';
-  const whatsappMsg = property
-    ? encodeURIComponent(`Hola, me interesa la propiedad: ${property.nombre}`)
-    : '';
-  const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${whatsappMsg}`;
+  const whatsappUrl = buildWhatsAppUrl(
+    user?.telefono_usuario,
+    property ? `Hola, me interesa la propiedad: ${property.nombre}` : undefined
+  );
 
   if (isLoading) {
     return (
@@ -80,12 +81,42 @@ const PropertyDetail = () => {
   const mainImage = images[0]?.image_url ?? 'https://images.unsplash.com/photo-1613490493576-7fde63acd811?q=80&w=1200&auto=format&fit=crop';
   const badge = isDevelopment ? 'Desarrollo' : actionLabel(property.id_tipo_accion);
   const location = [property.colonia, property.direccion].filter(Boolean).join(', ');
+  const canonicalUrl = `https://betsabeearias.homepty.com/properties/${property.id}`;
+  const propertySchema = {
+    '@context': 'https://schema.org',
+    '@type': 'RealEstateListing',
+    name: property.nombre,
+    description: property.descripcion ?? property.nombre,
+    url: canonicalUrl,
+    image: images.map((image) => image.image_url),
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: property.ciudad_nombre ?? property.colonia,
+      addressRegion: property.estado_nombre,
+      addressCountry: 'MX',
+    },
+    ...(property.precio > 0
+      ? {
+          offers: {
+            '@type': 'Offer',
+            price: property.precio,
+            priceCurrency: property.moneda ?? 'MXN',
+            availability: 'https://schema.org/InStock',
+          },
+        }
+      : {}),
+  };
 
   return (
     <>
       <Helmet>
         <title>{property.nombre} | {user?.nombre_usuario ?? 'All Home Bienes Raíces'}</title>
         <meta name="description" content={property.descripcion ?? property.nombre} />
+        <meta property="og:type" content="product" />
+        <meta property="og:title" content={property.nombre} />
+        <meta property="og:description" content={property.descripcion ?? property.nombre} />
+        <meta property="og:image" content={mainImage} />
+        <script type="application/ld+json">{JSON.stringify(propertySchema)}</script>
       </Helmet>
 
       <Navbar />
@@ -143,6 +174,11 @@ const PropertyDetail = () => {
             {/* Left Main Pane: Details */}
             <div className="lg:col-span-8 text-[#6E6259]">
               
+              {/* Title & Location */}
+              <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl font-light leading-tight mb-4">
+                {property.nombre}
+              </h1>
+
               {/* Badges */}
               <div className="flex items-center gap-3 mb-6">
                 <span className="px-3 py-1 bg-[#B76E4D] text-white text-[9px] uppercase tracking-widest font-sans font-bold">
@@ -163,11 +199,6 @@ const PropertyDetail = () => {
                   </span>
                 ))}
               </div>
-
-              {/* Title & Location */}
-              <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl font-light leading-tight mb-4">
-                {property.nombre}
-              </h1>
 
               {location && (
                 <p className="flex items-center gap-2 text-[#6E6259]/70 font-sans text-xs uppercase tracking-wider mb-8 font-light">
@@ -302,9 +333,9 @@ const PropertyDetail = () => {
                 <p className="font-sans font-bold text-3xl md:text-4xl text-[#B76E4D] mb-1">
                   {isDevelopment
                     ? fromPrice != null
-                      ? `Desde ${formatPrice(fromPrice)}`
+                      ? `Desde ${formatPrice(fromPrice, property.moneda ?? 'MXN')}`
                       : 'Precio a consultar'
-                    : formatPrice(property.precio)}
+                    : formatPrice(property.precio, property.moneda ?? 'MXN')}
                 </p>
                 <p className="text-[10px] uppercase tracking-widest text-[#6E6259]/60 font-sans mb-8">
                   {isDevelopment
@@ -318,14 +349,14 @@ const PropertyDetail = () => {
                 <div className="flex items-center gap-4 mb-8 pb-6 border-b border-[#E9DDCF]/35">
                   <div className="relative w-12 h-12 overflow-hidden bg-[#E9DDCF]/10 shrink-0">
                     <img
-                      src="/raquel.jpeg"
-                      alt="Raquel Meléndrez"
+                      src={user?.imagen_perfil_usuario ?? '/raquel.jpeg'}
+                      alt={user?.nombre_usuario ?? 'Raquel Meléndrez'}
                       className="w-full h-full object-cover"
                     />
                   </div>
                   <div>
                     <p className="font-sans font-semibold text-sm text-[#6E6259] uppercase tracking-wider">
-                      Raquel Meléndrez
+                      {user?.nombre_usuario ?? 'Raquel Meléndrez'}
                     </p>
                     <p className="font-sans text-[10px] uppercase tracking-widest text-[#B76E4D] font-medium mt-0.5">
                       Fundadora & Asesora Principal

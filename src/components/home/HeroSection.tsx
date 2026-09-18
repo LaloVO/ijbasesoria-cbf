@@ -3,21 +3,26 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSiteUser } from '@/hooks/useSiteUser';
 
+interface MapboxFeature {
+  center: [number, number];
+  place_name: string;
+}
+
+interface MapboxResponse {
+  features?: MapboxFeature[];
+}
+
 const HeroSection = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [query, setQuery] = useState('');
-  const [action, setAction] = useState('venta'); // 'venta' | 'renta'
+  const [action, setAction] = useState<'venta' | 'renta'>('venta');
   const navigate = useNavigate();
   const { site } = useSiteUser();
 
-  const mapboxToken = (
-    site?.platform_config?.mapbox_token || 
-    import.meta.env.VITE_MAPBOX_ACCESS_TOKEN || 
-    ('pk.eyJ1IjoiaG9tZXB0eW14Ii' + 'wiYSI6ImNtZjlpZ3p4czBzaWUya3B6MnB1dHZ4aWoifQ.' + 'ZKWLoVLu-fVaTXRD7HfXTg')
-  ).trim();
+  const mapboxToken = (site?.platform_config?.mapbox_token ?? '').trim();
 
   // Suggestions and Autocomplete State
-  const [suggestions, setSuggestions] = useState<any[]>([]);
+  const [suggestions, setSuggestions] = useState<MapboxFeature[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedCoords, setSelectedCoords] = useState<{ lat: number; lng: number; name: string } | null>(null);
 
@@ -54,8 +59,8 @@ const HeroSection = () => {
           )}.json?access_token=${mapboxToken}&limit=5&types=neighborhood,locality,place,address&country=mx&proximity=-99.1332,19.4326`
         );
         if (response.ok) {
-          const data = await response.json();
-          let features = data.features || [];
+          const data = await response.json() as MapboxResponse;
+          const features = data.features ?? [];
           setSuggestions(features);
           setShowSuggestions(true);
         }
@@ -67,7 +72,7 @@ const HeroSection = () => {
     return () => clearTimeout(delayDebounce);
   }, [query, mapboxToken, selectedCoords]);
 
-  const handleSuggestionClick = (feature: any) => {
+  const handleSuggestionClick = (feature: MapboxFeature) => {
     const [lng, lat] = feature.center;
     const name = feature.place_name;
     setQuery(name);
@@ -93,7 +98,7 @@ const HeroSection = () => {
           )}.json?access_token=${mapboxToken}&limit=1&country=mx`
         );
         if (response.ok) {
-          const data = await response.json();
+          const data = await response.json() as MapboxResponse;
           if (data?.features && data.features.length > 0) {
             const [lng, lat] = data.features[0].center;
             params.set('lat', String(lat));

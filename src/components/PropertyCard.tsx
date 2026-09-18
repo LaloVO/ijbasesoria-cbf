@@ -25,6 +25,9 @@ const PropertyCard = ({ property, variant = 'default' }: PropertyCardProps) => {
           </div>
         </div>
         <div className="p-4 space-y-2">
+          <h3 className="font-sans text-base font-extrabold text-slate-900 dark:text-white group-hover:text-primary transition-colors leading-snug truncate">
+            {property.nombre}
+          </h3>
           <div className="flex justify-between items-center text-[10px] font-sans font-bold uppercase tracking-wider">
             <span className="text-primary">{badge}</span>
             <div className="flex gap-2.5 text-slate-400">
@@ -32,9 +35,6 @@ const PropertyCard = ({ property, variant = 'default' }: PropertyCardProps) => {
               {property.banios != null && <span>{property.banios} B.</span>}
             </div>
           </div>
-          <h3 className="font-sans text-base font-extrabold text-slate-900 dark:text-white group-hover:text-primary transition-colors leading-snug truncate">
-            {property.nombre}
-          </h3>
           <p className="font-sans text-xs text-muted-foreground truncate">{location}</p>
         </div>
       </Link>
@@ -48,14 +48,14 @@ const PropertyCard = ({ property, variant = 'default' }: PropertyCardProps) => {
       </div>
       <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-3">
         <div className="space-y-1">
+          <h3 className="font-sans text-xl font-extrabold text-slate-900 dark:text-white group-hover:text-primary transition-colors">
+            {property.nombre}
+          </h3>
           <div className="flex items-center gap-2 text-[10px] font-sans font-bold uppercase tracking-widest text-primary">
             <span>{badge}</span>
             <span className="text-slate-300 dark:text-slate-700">•</span>
             <span className="text-slate-400 dark:text-slate-500 font-normal normal-case tracking-normal">{property.area ? `${property.area}m²` : ''}</span>
           </div>
-          <h3 className="font-sans text-xl font-extrabold text-slate-900 dark:text-white group-hover:text-primary transition-colors">
-            {property.nombre}
-          </h3>
           <p className="font-sans text-xs text-muted-foreground">
             {location}
           </p>
