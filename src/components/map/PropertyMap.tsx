@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { X, Bed, Bath, Square } from 'lucide-react';
@@ -29,7 +30,11 @@ const PropertyMap = ({ properties, mapboxToken, centerLngLat }: PropertyMapProps
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const markersRef = useRef<mapboxgl.Marker[]>([]);
   const boundsFitRef = useRef(false);
-  const [selected, setSelected] = useState<MapProperty | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const selected = useMemo(
+    () => properties.find((property) => property.id === selectedId) ?? null,
+    [properties, selectedId]
+  );
 
   useEffect(() => {
     if (!containerRef.current || !mapboxToken) return;
@@ -122,7 +127,7 @@ const PropertyMap = ({ properties, mapboxToken, centerLngLat }: PropertyMapProps
           inner.style.transform = 'scale(1)';
           inner.style.background = '#1a1a1a';
         });
-        el.addEventListener('click', () => setSelected(prop));
+        el.addEventListener('click', () => setSelectedId(prop.id));
 
         const marker = new mapboxgl.Marker({ element: el, anchor: 'center' })
           .setLngLat([prop.coordinates.lng, prop.coordinates.lat])
@@ -168,43 +173,55 @@ const PropertyMap = ({ properties, mapboxToken, centerLngLat }: PropertyMapProps
       <div ref={containerRef} className="w-full h-full" />
 
       {selected && (
-        <div className="absolute bottom-6 left-4 w-72 z-20 animate-fade-in">
-          <div className="bg-card rounded-xl shadow-elegant overflow-hidden">
-            <div className="relative">
-              {selected.image ? (
-                <img
-                  src={selected.image}
-                  alt={selected.title}
-                  className="w-full h-36 object-cover"
-                />
-              ) : (
-                <div className="w-full h-36 bg-muted" />
-              )}
-              <button
-                onClick={() => setSelected(null)}
-                className="absolute top-2 right-2 p-1.5 bg-foreground/80 rounded-full text-background hover:bg-foreground transition-colors"
-              >
-                <X className="w-3.5 h-3.5" />
-              </button>
-              <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/60 to-transparent p-3">
-                <span className="text-white font-medium text-sm">{selected.price}</span>
+        <div className="absolute bottom-24 left-4 w-72 z-50 pointer-events-auto animate-fade-in">
+          <div className="relative bg-card rounded-xl shadow-elegant overflow-hidden">
+            <Link
+              to={`/properties/${selected.id}`}
+              aria-label={`Ver ${selected.title}`}
+              className="block cursor-pointer"
+            >
+              <div className="relative">
+                {selected.image ? (
+                  <img
+                    src={selected.image}
+                    alt={selected.title}
+                    className="w-full h-36 object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-36 bg-muted" />
+                )}
+                <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/60 to-transparent p-3">
+                  <span className="text-white font-medium text-sm">{selected.price}</span>
+                </div>
               </div>
-            </div>
-            <a href={`/properties/${selected.id}`} className="block p-3">
-              <p className="font-serif text-base mb-0.5 line-clamp-1">{selected.title}</p>
-              <p className="text-xs text-muted-foreground mb-2">{selected.area}</p>
-              <div className="flex gap-3 text-xs text-muted-foreground">
-                <span className="flex items-center gap-1">
-                  <Bed className="w-3 h-3" /> {selected.bedrooms}
-                </span>
-                <span className="flex items-center gap-1">
-                  <Bath className="w-3 h-3" /> {selected.bathrooms}
-                </span>
-                <span className="flex items-center gap-1">
-                  <Square className="w-3 h-3" /> {selected.sqm}m²
-                </span>
+              <div className="p-3">
+                <p className="font-serif text-base mb-0.5 line-clamp-1">{selected.title}</p>
+                <p className="text-xs text-muted-foreground mb-2">{selected.area}</p>
+                <div className="flex gap-3 text-xs text-muted-foreground">
+                  <span className="flex items-center gap-1">
+                    <Bed className="w-3 h-3" /> {selected.bedrooms}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Bath className="w-3 h-3" /> {selected.bathrooms}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Square className="w-3 h-3" /> {selected.sqm}m²
+                  </span>
+                </div>
               </div>
-            </a>
+            </Link>
+            <button
+              type="button"
+              aria-label="Cerrar ficha"
+              onClick={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                setSelectedId(null);
+              }}
+              className="absolute top-2 right-2 z-10 p-1.5 bg-foreground/80 rounded-full text-background hover:bg-foreground transition-colors"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
           </div>
         </div>
       )}

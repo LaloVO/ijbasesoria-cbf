@@ -66,11 +66,17 @@ export function useGeocodedProperties<T extends CBFProperty>(properties: T[], ma
     return () => { cancelled = true; };
   }, [mapboxToken, missingKey, missing]);
 
-  return properties.map((property) => {
-    if (property.latitud != null && property.longitud != null) return property;
-    const coordinates = resolved[String(property.id)];
-    return coordinates
-      ? { ...property, latitud: coordinates.lat, longitud: coordinates.lng }
-      : property;
-  });
+  // Memoizado: sin esto la identidad del array cambia en cada render y el mapa
+  // destruye y recrea todos los markers una y otra vez (los clicks se pierden).
+  return useMemo(
+    () =>
+      properties.map((property) => {
+        if (property.latitud != null && property.longitud != null) return property;
+        const coordinates = resolved[String(property.id)];
+        return coordinates
+          ? { ...property, latitud: coordinates.lat, longitud: coordinates.lng }
+          : property;
+      }),
+    [properties, resolved]
+  );
 }

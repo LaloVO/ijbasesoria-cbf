@@ -15,9 +15,9 @@ import { useGeocodedProperties } from '@/hooks/useGeocodedProperties';
 import { useSiteUser } from '@/hooks/useSiteUser';
 import { CBFProperty } from '@/lib/cbf';
 import type { DevelopmentSummary } from '@/hooks/usePropertyCatalog';
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { List, Map as MapIcon } from 'lucide-react';
+import { LayoutGrid, List, Map as MapIcon } from 'lucide-react';
 
 const VERTICAL_ID_BY_TIPO: Record<string, number> = {
   'casa': 1,
@@ -387,23 +387,36 @@ const MapPage = () => {
           </div>
         </aside>
 
-        {/* Mobile floating view mode toggle */}
-        <button
-          onClick={() => setViewMode(prev => prev === 'map' ? 'list' : 'map')}
-          className="lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-40 flex items-center gap-2 px-5 py-3 rounded-full bg-slate-900/95 backdrop-blur border border-white/10 text-white font-sans text-xs font-bold uppercase tracking-wider shadow-elegant hover:bg-slate-800 active:scale-95 transition-all cursor-pointer"
-        >
-          {viewMode === 'map' ? (
-            <>
-              <List className="w-4 h-4 text-primary" />
-              <span>Ver Lista</span>
-            </>
-          ) : (
-            <>
-              <MapIcon className="w-4 h-4 text-primary" />
-              <span>Ver Mapa</span>
-            </>
-          )}
-        </button>
+        {/* Floating bottom controls, centered on the map pane (the lg:right-96 keeps the centering
+            inside the map column, since the w-96 sidebar always occupies the right side on lg). */}
+        <div className="fixed bottom-6 inset-x-0 z-40 flex justify-center pointer-events-none lg:right-96">
+          <div className="flex items-center gap-2 pointer-events-auto">
+            <button
+              onClick={() => setViewMode(prev => prev === 'map' ? 'list' : 'map')}
+              className="lg:hidden flex items-center gap-2 px-5 py-3 rounded-full bg-slate-900/95 backdrop-blur border border-white/10 text-white font-sans text-xs font-bold uppercase tracking-wider shadow-elegant hover:bg-slate-800 active:scale-95 transition-all cursor-pointer"
+            >
+              {viewMode === 'map' ? (
+                <>
+                  <List className="w-4 h-4 text-primary" />
+                  <span>Ver Lista</span>
+                </>
+              ) : (
+                <>
+                  <MapIcon className="w-4 h-4 text-primary" />
+                  <span>Ver Mapa</span>
+                </>
+              )}
+            </button>
+
+            <Link
+              to="/propiedades"
+              className="flex items-center gap-2 px-5 py-3 rounded-full bg-primary text-white font-sans text-xs font-bold uppercase tracking-wider shadow-elegant hover:bg-primary/90 active:scale-95 transition-all cursor-pointer"
+            >
+              <LayoutGrid className="w-4 h-4" />
+              <span>Listado</span>
+            </Link>
+          </div>
+        </div>
       </main>
     </>
   );
